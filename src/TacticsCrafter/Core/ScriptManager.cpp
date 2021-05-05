@@ -24,27 +24,9 @@ void ScriptManager::prerun()
 {
     for (auto& ss : _scripts)
     {
-        /* Prepare the script env */
-        lua_newtable(_lua);
-        lua_pushstring(_lua, "name");
-        lua_pushstring(_lua, "Unknown");
-        lua_settable(_lua, -3);
-        lua_pushstring(_lua, "description");
-        lua_pushstring(_lua, "Unknown");
-        lua_settable(_lua, -3);
-        lua_setglobal(_lua, "_script");
-
         /* Execute the script */
         auto& s = *ss.get();
         s.exec();
-
-        /* Fetch the results */
-        lua_getglobal(_lua, "_script");
-        lua_pushstring(_lua, "name");
-        lua_gettable(_lua, -2);
-        auto* name = luaL_checkstring(_lua, -1);
-        s.setName(name);
-        lua_pop(_lua, 2);
     }
 }
 

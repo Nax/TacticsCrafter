@@ -18,6 +18,7 @@ public:
 private:
     lua_State*  _lua;
     int         _func;
+    int         _env;
     QString     _name;
 };
 

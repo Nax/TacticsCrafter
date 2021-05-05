@@ -28,6 +28,7 @@ endif()
 add_custom_command(
     TARGET TacticsCrafter POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/data" "$<TARGET_FILE_DIR:TacticsCrafter>/data"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/patches" "$<TARGET_FILE_DIR:TacticsCrafter>/patches"
     COMMENT "Copying data"
     VERBATIM
 )
