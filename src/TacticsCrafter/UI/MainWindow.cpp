@@ -24,6 +24,11 @@ void MainWindow::importScript()
     }
 }
 
+void MainWindow::selectScript(int index)
+{
+    _widgetScriptView->setScript(&_scriptManager.get(index));
+}
+
 void MainWindow::createActions()
 {
     _actionImportScript = new QAction("Import Script...", this);
@@ -46,16 +51,20 @@ void MainWindow::createWidgets()
     /* Script List */
     _widgetScriptList = new QListWidget();
     _widgetScriptList->setMinimumWidth(250);
+    connect(_widgetScriptList, &QListWidget::itemSelectionChanged, [this]()
+    {
+        selectScript(_widgetScriptList->currentRow());
+    });
 
     /* Script Viewer */
-    auto scriptViewer = new QWidget;
-    scriptViewer->setMinimumWidth(500);
-    scriptViewer->setMinimumHeight(500);
+    _widgetScriptView = new ScriptView;
+    _widgetScriptView->setMinimumWidth(500);
+    _widgetScriptView->setMinimumHeight(500);
 
     auto mainWidget = new QWidget;
     auto layout = new QHBoxLayout();
     layout->addWidget(_widgetScriptList);
-    layout->addWidget(scriptViewer, 1);
+    layout->addWidget(_widgetScriptView, 1);
     mainWidget->setLayout(layout);
     setCentralWidget(mainWidget);
 }

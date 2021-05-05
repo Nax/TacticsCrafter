@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QListWidget>
 #include <TacticsCrafter/Core/ScriptManager.h>
+#include <TacticsCrafter/UI/ScriptView.h>
 
 class MainWindow : public QMainWindow
 {
@@ -14,6 +15,7 @@ public:
 
 private slots:
     void importScript();
+    void selectScript(int index);
 
 private:
     void createActions();
@@ -27,6 +29,7 @@ private:
     QAction* _actionImportScript;
 
     QListWidget*    _widgetScriptList;
+    ScriptView*     _widgetScriptView;
 };
 
 #endif /* TC_MAIN_WINDOW_H */

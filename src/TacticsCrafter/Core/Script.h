@@ -11,15 +11,21 @@ public:
     ~Script();
 
     const QString& name() const { return _name; }
+    const QString& version() const { return _version; }
+    const QString& author() const { return _author; }
+    const QString& description() const { return _description; }
 
-    void setName(const QString& name);
     void exec();
 
 private:
     lua_State*  _lua;
     int         _func;
     int         _env;
+
     QString     _name;
+    QString     _version;
+    QString     _author;
+    QString     _description;
 };
 
 #endif /* TC_CORE_SCRIPT_H */
