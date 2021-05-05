@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.css": "css",
+        "qabstractlistmodel": "cpp",
+        "qlistwidget": "cpp"
+    }
+}

@@ -1,5 +1,5 @@
 #include <QApplication>
-#include <TacticsCrafter/MainWindow.h>
+#include <TacticsCrafter/UI/MainWindow.h>
 
 int main(int argc, char** argv)
 {
