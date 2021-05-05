@@ -18,6 +18,7 @@ public:
     Script& get(std::size_t index) { return *_scripts[index]; }
 
     void load(const QString& path);
+    void prerun();
 
 private:
     lua_State*  _lua;

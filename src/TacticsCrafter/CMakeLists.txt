@@ -24,3 +24,10 @@ if (WIN32)
         VERBATIM
     )
 endif()
+
+add_custom_command(
+    TARGET TacticsCrafter POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/data" "$<TARGET_FILE_DIR:TacticsCrafter>/data"
+    COMMENT "Copying data"
+    VERBATIM
+)

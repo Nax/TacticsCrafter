@@ -12,3 +12,14 @@ Script::~Script()
 {
     luaL_unref(_lua, LUA_REGISTRYINDEX, _func);
 }
+
+void Script::setName(const QString& name)
+{
+    _name = name;
+}
+
+void Script::exec()
+{
+    lua_rawgeti(_lua, LUA_REGISTRYINDEX, _func);
+    lua_pcall(_lua, 0, 0, 0);
+}

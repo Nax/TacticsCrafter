@@ -12,6 +12,9 @@ public:
 
     const QString& name() const { return _name; }
 
+    void setName(const QString& name);
+    void exec();
+
 private:
     lua_State*  _lua;
     int         _func;
