@@ -9,11 +9,13 @@ Script.properties = function (data)
   end
 end
 
-function patch_bin8(addr, value)
+Patch = {}
+
+Patch.write8 = function(addr, value)
 end
 
-function patch_bin16(addr, value)
+Patch.write16 = function(addr, value)
 end
 
-function patch_bin32(addr, value)
+Patch.write32 = function(addr, value)
 end

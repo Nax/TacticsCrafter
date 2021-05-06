@@ -1,5 +1,6 @@
 #include <QtWidgets>
 #include <TacticsCrafter/UI/MainWindow.h>
+#include <TacticsCrafter/UI/TabBuild.h>
 
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow{parent}
@@ -61,11 +62,15 @@ void MainWindow::createWidgets()
     _widgetScriptView->setMinimumWidth(500);
     _widgetScriptView->setMinimumHeight(500);
 
-    auto mainWidget = new QWidget;
-    auto layout = new QHBoxLayout();
-    layout->addWidget(_widgetScriptList);
-    layout->addWidget(_widgetScriptView, 1);
-    mainWidget->setLayout(layout);
+    auto tabPatches = new QWidget;
+    auto layoutPatches = new QHBoxLayout();
+    layoutPatches->addWidget(_widgetScriptList);
+    layoutPatches->addWidget(_widgetScriptView, 1);
+    tabPatches->setLayout(layoutPatches);
+
+    auto mainWidget = new QTabWidget;
+    mainWidget->addTab(tabPatches, "Patches");
+    mainWidget->addTab(new TabBuild, "Build");
     setCentralWidget(mainWidget);
 }
 
