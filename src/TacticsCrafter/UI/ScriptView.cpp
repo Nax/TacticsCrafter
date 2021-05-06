@@ -23,6 +23,9 @@ ScriptView::ScriptView(QWidget* parent)
     layout->addWidget(_labelVersion, 1, 1);
     layout->addWidget(_labelAuthor, 2, 1);
     layout->addWidget(_labelDescription, 3, 1);
+
+    layout->setRowStretch(4, 1);
+    layout->setColumnStretch(1, 1);
 }
 
 void ScriptView::setScript(Script* script)

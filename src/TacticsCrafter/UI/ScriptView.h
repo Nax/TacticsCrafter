@@ -17,6 +17,7 @@ public:
 
 private:
     Script* _script;
+
     QLabel* _labelName;
     QLabel* _labelVersion;
     QLabel* _labelAuthor;
