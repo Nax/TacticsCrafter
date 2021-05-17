@@ -1,6 +1,7 @@
 #include <QtWidgets>
 #include <TacticsCrafter/UI/MainWindow.h>
 #include <TacticsCrafter/UI/TabBuild.h>
+#include <TacticsCrafter/UI/TabScripts.h>
 
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow{parent}
@@ -21,13 +22,7 @@ void MainWindow::importScript()
     {
         _scriptManager.load(filename);
         _scriptManager.prerun();
-        refreshScripts();
     }
-}
-
-void MainWindow::selectScript(int index)
-{
-    _widgetScriptView->setScript(&_scriptManager.get(index));
 }
 
 void MainWindow::createActions()
@@ -49,36 +44,15 @@ void MainWindow::createMenus()
 
 void MainWindow::createWidgets()
 {
-    /* Script List */
-    _widgetScriptList = new QListWidget();
-    _widgetScriptList->setMinimumWidth(250);
-    connect(_widgetScriptList, &QListWidget::itemSelectionChanged, [this]()
-    {
-        selectScript(_widgetScriptList->currentRow());
-    });
+    auto tabWidget = new QTabWidget;
+    tabWidget->addTab(new TabScripts{_scriptManager}, "Patches");
+    tabWidget->addTab(new TabBuild, "Build");
 
-    /* Script Viewer */
-    _widgetScriptView = new ScriptView;
-    _widgetScriptView->setMinimumWidth(500);
-    _widgetScriptView->setMinimumHeight(500);
+    auto centralWidget = new QWidget;
+    setCentralWidget(centralWidget);
 
-    auto tabPatches = new QWidget;
-    auto layoutPatches = new QHBoxLayout();
-    layoutPatches->addWidget(_widgetScriptList);
-    layoutPatches->addWidget(_widgetScriptView, 1);
-    tabPatches->setLayout(layoutPatches);
+    auto centralLayout = new QVBoxLayout;
+    centralWidget->setLayout(centralLayout);
 
-    auto mainWidget = new QTabWidget;
-    mainWidget->addTab(tabPatches, "Patches");
-    mainWidget->addTab(new TabBuild, "Build");
-    setCentralWidget(mainWidget);
-}
-
-void MainWindow::refreshScripts()
-{
-    _widgetScriptList->clear();
-    for (std::size_t i = 0; i < _scriptManager.count(); ++i)
-    {
-        _widgetScriptList->addItem(_scriptManager.get(i).name());
-    }
+    centralLayout->addWidget(tabWidget);
 }

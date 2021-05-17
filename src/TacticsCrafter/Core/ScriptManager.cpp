@@ -28,5 +28,6 @@ void ScriptManager::prerun()
         auto& s = *ss.get();
         s.exec();
     }
+    emit update();
 }
 

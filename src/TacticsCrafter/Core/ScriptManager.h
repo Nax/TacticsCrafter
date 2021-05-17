@@ -3,11 +3,14 @@
 
 #include <vector>
 #include <memory>
+#include <QObject>
 #include <TacticsCrafter/Core/Lua.h>
 #include <TacticsCrafter/Core/Script.h>
 
-class ScriptManager
+class ScriptManager : public QObject
 {
+    Q_OBJECT
+
 public:
     ScriptManager();
     ~ScriptManager();
@@ -19,6 +22,9 @@ public:
 
     void load(const QString& path);
     void prerun();
+
+signals:
+    void update();
 
 private:
     lua_State*  _lua;
