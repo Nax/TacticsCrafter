@@ -16,6 +16,9 @@ public:
     void setScript(Script* script);
     void refresh();
 
+signals:
+    void changed();
+
 private:
     Script* _script;
 
@@ -25,6 +28,7 @@ private:
     QLabel* _labelDescription;
 
     QWidget*    _consoleContainer;
+    QWidget*    _optsContainer;
     QTextEdit*  _console;
 };
 

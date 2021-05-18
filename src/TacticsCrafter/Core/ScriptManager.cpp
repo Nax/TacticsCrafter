@@ -56,6 +56,7 @@ Changeset ScriptManager::run()
 
         /* Execute the script */
         auto& s = *ss.get();
+        state.script = &s;
         s.exec();
 
         /* Store the new metadata */

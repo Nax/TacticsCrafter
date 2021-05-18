@@ -27,6 +27,7 @@ TabScripts::TabScripts(ScriptManager& scripts, QWidget* parent)
     _view = new ScriptView;
     _view->setMinimumWidth(500);
     _view->setMinimumHeight(500);
+    connect(_view, &ScriptView::changed, [this](){ _scripts.run(); });
 
     auto layout = new QHBoxLayout();
     layout->addLayout(listLayout);

@@ -28,12 +28,25 @@ int api_script_properties(lua_State* L)
     return 0;
 }
 
+int api_script_opt_bool(lua_State* L)
+{
+    auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
+    const char* key = luaL_checkstring(L, 1);
+    const char* text = luaL_checkstring(L, 2);
+    bool value = lua_isnone(L, 3) ? false : lua_toboolean(L, 3);
+
+    lua_pushboolean(L, state->script->optBool(key, text, value));
+
+    return 1;
+}
+
 }
 
 void API::initScript(lua_State* L, State* state)
 {
     static struct luaL_Reg funcs[] = {
         { "properties", &api_script_properties },
+        { "opt_bool", &api_script_opt_bool },
         { nullptr }
     };
 

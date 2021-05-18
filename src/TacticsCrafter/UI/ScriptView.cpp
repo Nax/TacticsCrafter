@@ -35,8 +35,12 @@ ScriptView::ScriptView(QWidget* parent)
     _consoleContainer->setLayout(consoleLayout);
     _consoleContainer->setVisible(false);
 
+    _optsContainer = new QWidget;
+    _optsContainer->setLayout(new QVBoxLayout);
+
     auto layout = new QVBoxLayout;
     layout->addLayout(layoutMeta);
+    layout->addWidget(_optsContainer);
     layout->addStretch(1);
     layout->addWidget(_consoleContainer);
     setLayout(layout);
@@ -50,6 +54,9 @@ void ScriptView::setScript(Script* script)
 
 void ScriptView::refresh()
 {
+    QWidget().setLayout(_optsContainer->layout());
+    _optsContainer->setLayout(new QVBoxLayout);
+
     if (_script)
     {
         const auto& m = _script->meta();
@@ -69,6 +76,20 @@ void ScriptView::refresh()
             _consoleContainer->setVisible(true);
             for (const auto& l : _script->log())
                 _console->append(l);
+        }
+
+        /* Options */
+        for (auto& o : _script->opts())
+        {
+            switch (o.type)
+            {
+            case Script::Option::Type::Bool:
+                auto checkbox = new QCheckBox(o.text);
+                checkbox->setCheckState(o.b ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+                connect(checkbox, &QCheckBox::stateChanged, [&](int state){ o.b = !!state; emit changed(); });
+                _optsContainer->layout()->addWidget(checkbox);
+                break;
+            }
         }
 
     }

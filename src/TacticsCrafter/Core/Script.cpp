@@ -38,6 +38,23 @@ Script::~Script()
         luaL_unref(_lua, LUA_REGISTRYINDEX, _func);
 }
 
+bool Script::optBool(const QString& key, const QString& text, bool value)
+{
+    Option* o;
+
+    o = optLookup(key, Option::Type::Bool);
+    if (!o)
+    {
+        _opts.resize(_opts.size() + 1);
+        o = &_opts.back();
+        o->type = Option::Type::Bool;
+        o->key = key;
+        o->b = value;
+    }
+    o->text = text;
+    return o->b;
+}
+
 void Script::exec()
 {
     if (_func != LUA_NOREF)
@@ -57,4 +74,29 @@ void Script::exec()
             _log.push_back(lua_tostring(_lua, -1));
         }
     }
+}
+
+Script::Option* Script::optLookup(const QString& key, Option::Type type)
+{
+    int index = -1;
+    for (int i = 0; i < _opts.size(); ++i)
+    {
+        Option& o = _opts[i];
+        if (o.key == key)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    if (index == -1)
+        return nullptr;
+
+    if (_opts[index].type != type)
+    {
+        _opts.erase(_opts.begin() + index);
+        return nullptr;
+    }
+
+    return _opts.data() + index;
 }
