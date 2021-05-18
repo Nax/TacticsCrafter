@@ -46,4 +46,6 @@ void FileSelector::selectFile()
         filename = QFileDialog::getSaveFileName(this, _dialogTitle, "", _dialogFilter);
 
     _lineEdit->setText(filename);
+
+    emit selected(filename);
 }

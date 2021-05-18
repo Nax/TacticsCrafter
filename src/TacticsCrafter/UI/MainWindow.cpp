@@ -46,7 +46,7 @@ void MainWindow::createWidgets()
 {
     auto tabWidget = new QTabWidget;
     tabWidget->addTab(new TabScripts{_scriptManager}, "Patches");
-    tabWidget->addTab(new TabBuild, "Build");
+    tabWidget->addTab(new TabBuild{_scriptManager}, "Build");
 
     auto centralWidget = new QWidget;
     setCentralWidget(centralWidget);

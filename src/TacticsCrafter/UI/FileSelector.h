@@ -8,11 +8,16 @@
 
 class FileSelector : public QWidget
 {
+    Q_OBJECT
+
 public:
     FileSelector(QWidget* parent = nullptr);
 
     void setLabel(const QString label);
     void setDialogOptions(const QString& title, const QString& filter, bool allowNew = false);
+
+signals:
+    void selected(QString);
 
 private slots:
     void selectFile();
