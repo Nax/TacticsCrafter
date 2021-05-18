@@ -21,6 +21,7 @@ local patch_item_propx = function(id, offset, value, setter)
     base = 0x08b29288
   else
     base = 0x08a5adac
+    id = id - 0x100
   end
   local addr = base + id * 12 + offset
   setter(addr, value)
@@ -49,7 +50,6 @@ end
 
 local set_item_property = function (t, k, v)
   local f = ItemPropertySetters[k]
-  print(f)
   if f then
     f(t, v)
   end
