@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <TacticsCrafter/Core/ScriptManager.h>
+#include <TacticsCrafter/State/State.h>
 
 ScriptManager::ScriptManager()
 {
@@ -22,6 +23,10 @@ void ScriptManager::load(const QString& path)
 
 void ScriptManager::prerun()
 {
+    State state;
+
+    state.apply(_lua);
+
     for (auto& ss : _scripts)
     {
         /* Execute the script */
