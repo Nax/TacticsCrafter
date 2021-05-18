@@ -21,7 +21,8 @@ public:
 
     bool core() const { return _core; }
 
-    const QStringList& log() const { return _log; }
+    const QStringList&  log() const { return _log; }
+    void                print(const char* str) { _log.append(str); }
 
     const Meta& meta() const { return _meta; }
     void setMeta(const Meta& m) { _meta = m; }
