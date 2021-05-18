@@ -7,25 +7,26 @@
 class Script
 {
 public:
+    struct Meta
+    {
+        QString name;
+        QString version;
+        QString author;
+        QString description;
+    };
+
     Script(lua_State* lua, const QString& path);
     ~Script();
 
-    const QString& name() const { return _name; }
-    const QString& version() const { return _version; }
-    const QString& author() const { return _author; }
-    const QString& description() const { return _description; }
+    const Meta& meta() const { return _meta; }
+    void setMeta(const Meta& m) { _meta = m; }
 
     void exec();
 
 private:
     lua_State*  _lua;
     int         _func;
-    int         _env;
-
-    QString     _name;
-    QString     _version;
-    QString     _author;
-    QString     _description;
+    Meta        _meta;
 };
 
 #endif /* TC_CORE_SCRIPT_H */

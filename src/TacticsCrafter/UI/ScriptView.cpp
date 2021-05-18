@@ -38,10 +38,12 @@ void ScriptView::refresh()
 {
     if (_script)
     {
-        _labelName->setText(_script->name());
-        _labelVersion->setText(_script->version());
-        _labelAuthor->setText(_script->author());
-        _labelDescription->setText(_script->description());
+        const auto& m = _script->meta();
+
+        _labelName->setText(m.name);
+        _labelVersion->setText(m.version);
+        _labelAuthor->setText(m.author);
+        _labelDescription->setText(m.description);
     }
     else
     {

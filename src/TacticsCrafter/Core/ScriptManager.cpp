@@ -29,10 +29,13 @@ void ScriptManager::prerun()
 
     for (auto& ss : _scripts)
     {
+        state.script.reset();
+
         /* Execute the script */
         auto& s = *ss.get();
         s.exec();
+
+        s.setMeta(state.script.meta);
     }
     emit update();
 }
-

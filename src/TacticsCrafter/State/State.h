@@ -1,6 +1,7 @@
 #ifndef TC_STATE_STATE_H
 #define TC_STATE_STATE_H
 
+#include <TacticsCrafter/State/StateScript.h>
 #include <TacticsCrafter/State/StateSymbols.h>
 
 struct State
@@ -8,6 +9,7 @@ struct State
     State();
     void apply(lua_State* L);
 
+    StateScript  script;
     StateSymbols symbols;
 };
 

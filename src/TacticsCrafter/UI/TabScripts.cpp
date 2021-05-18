@@ -38,6 +38,6 @@ void TabScripts::refresh()
     _list->clear();
     for (std::size_t i = 0; i < _scripts.count(); ++i)
     {
-        _list->addItem(_scripts.get(i).name());
+        _list->addItem(_scripts.get(i).meta().name);
     }
 }
