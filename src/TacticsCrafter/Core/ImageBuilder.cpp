@@ -1,4 +1,5 @@
 #include <TacticsCrafter/Core/ImageBuilder.h>
+#include <TacticsCrafter/Core/Changeset.h>
 
 #define EBOOT_SIZE      (3835392)
 #define BOOT_SIZE       (3835044)
@@ -37,6 +38,39 @@ void fileCopyRange(std::FILE* out, std::FILE* in, std::size_t outOffset, std::si
         l = std::fread(buffer, 1, l, in);
         std::fwrite(buffer, l, 1, out);
         len -= l;
+    }
+}
+
+std::uint32_t fileOffsetFromAddr(std::uint32_t addr)
+{
+    if (addr >= 0x08804000 && addr < 0x08804000 + 3833648)
+    {
+        return EBOOT_OFFSET + 0x54 + (addr - 0x08804000);
+    }
+    return 0;
+}
+
+void fileWriteChange(std::FILE* out, Changeset::Change change)
+{
+    std::uint32_t addr;
+
+    addr = fileOffsetFromAddr(change.addr);
+    if (!addr)
+        return;
+    std::fseek(out, addr, SEEK_SET);
+    switch (change.type)
+    {
+    case Changeset::ChangeType::None:
+        break;
+    case Changeset::ChangeType::Write8:
+        std::fwrite(&change.u8, 1, 1, out);
+        break;
+    case Changeset::ChangeType::Write16:
+        std::fwrite(&change.u16, 2, 1, out);
+        break;
+    case Changeset::ChangeType::Write32:
+        std::fwrite(&change.u32, 4, 1, out);
+        break;
     }
 }
 
@@ -80,6 +114,12 @@ void ImageBuilder::apply(const Changeset& changes)
 
     /* Decrypt the ISO */
     fileCopyRange(_fileOut, _fileIn, EBOOT_OFFSET, BOOT_OFFSET, BOOT_SIZE);
+    emit progress(750);
+
+    /* Apply the changes */
+    for (const auto& c : changes)
+        fileWriteChange(_fileOut, c);
+
     emit progress(1000);
 }
 
