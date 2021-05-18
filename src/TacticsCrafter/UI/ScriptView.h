@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QTextEdit>
 
 class Script;
 class ScriptView : public QWidget
@@ -22,6 +23,9 @@ private:
     QLabel* _labelVersion;
     QLabel* _labelAuthor;
     QLabel* _labelDescription;
+
+    QWidget*    _consoleContainer;
+    QTextEdit*  _console;
 };
 
 #endif /* TC_UI_SCRIPT_VIEW_H */

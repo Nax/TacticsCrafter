@@ -6,26 +6,40 @@ ScriptView::ScriptView(QWidget* parent)
 : QWidget{parent}
 , _script{}
 {
-    auto layout = new QGridLayout;
-    setLayout(layout);
+    auto layoutMeta = new QGridLayout;
 
     _labelName = new QLabel;
     _labelVersion = new QLabel;
     _labelAuthor = new QLabel;
     _labelDescription = new QLabel;
 
-    layout->addWidget(new QLabel("Name"), 0, 0);
-    layout->addWidget(new QLabel("Version"), 1, 0);
-    layout->addWidget(new QLabel("Author"), 2, 0);
-    layout->addWidget(new QLabel("Description"), 3, 0);
+    layoutMeta->addWidget(new QLabel("Name"), 0, 0);
+    layoutMeta->addWidget(new QLabel("Version"), 1, 0);
+    layoutMeta->addWidget(new QLabel("Author"), 2, 0);
+    layoutMeta->addWidget(new QLabel("Description"), 3, 0);
 
-    layout->addWidget(_labelName, 0, 1);
-    layout->addWidget(_labelVersion, 1, 1);
-    layout->addWidget(_labelAuthor, 2, 1);
-    layout->addWidget(_labelDescription, 3, 1);
+    layoutMeta->addWidget(_labelName, 0, 1);
+    layoutMeta->addWidget(_labelVersion, 1, 1);
+    layoutMeta->addWidget(_labelAuthor, 2, 1);
+    layoutMeta->addWidget(_labelDescription, 3, 1);
 
-    layout->setRowStretch(4, 1);
-    layout->setColumnStretch(1, 1);
+    layoutMeta->setRowStretch(4, 1);
+    layoutMeta->setColumnStretch(1, 1);
+
+    auto consoleLayout = new QVBoxLayout;
+    consoleLayout->addWidget(new QLabel("Console"));
+    _console = new QTextEdit;
+    _console->setReadOnly(true);
+    consoleLayout->addWidget(_console, 1);
+    _consoleContainer = new QWidget;
+    _consoleContainer->setLayout(consoleLayout);
+    _consoleContainer->setVisible(false);
+
+    auto layout = new QVBoxLayout;
+    layout->addLayout(layoutMeta);
+    layout->addStretch(1);
+    layout->addWidget(_consoleContainer);
+    setLayout(layout);
 }
 
 void ScriptView::setScript(Script* script)
@@ -44,6 +58,19 @@ void ScriptView::refresh()
         _labelVersion->setText(m.version);
         _labelAuthor->setText(m.author);
         _labelDescription->setText(m.description);
+
+        _console->clear();
+        if (_script->log().empty())
+        {
+            _consoleContainer->setVisible(false);
+        }
+        else
+        {
+            _consoleContainer->setVisible(true);
+            for (const auto& l : _script->log())
+                _console->append(l);
+        }
+
     }
     else
     {
@@ -51,5 +78,7 @@ void ScriptView::refresh()
         _labelVersion->setText("");
         _labelAuthor->setText("");
         _labelDescription->setText("");
+
+        _consoleContainer->setVisible(false);
     }
 }
