@@ -21,7 +21,7 @@ void MainWindow::importScript()
     if (!filename.isEmpty())
     {
         _scriptManager.load(filename);
-        _scriptManager.prerun();
+        _scriptManager.run();
     }
 }
 

@@ -21,7 +21,7 @@ void ScriptManager::load(const QString& path)
     _scripts.push_back(std::make_unique<Script>(_lua, path));
 }
 
-void ScriptManager::prerun()
+Changeset ScriptManager::run()
 {
     State state;
 
@@ -29,13 +29,17 @@ void ScriptManager::prerun()
 
     for (auto& ss : _scripts)
     {
+        /* Reset the script metadata (name, author, etc.) */
         state.script.reset();
 
         /* Execute the script */
         auto& s = *ss.get();
         s.exec();
 
+        /* Store the new metadata */
         s.setMeta(state.script.meta);
     }
     emit update();
+
+    return state.patch.changeset;
 }

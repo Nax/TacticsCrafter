@@ -6,6 +6,7 @@
 #include <QObject>
 #include <TacticsCrafter/Core/Lua.h>
 #include <TacticsCrafter/Core/Script.h>
+#include <TacticsCrafter/Core/Changeset.h>
 
 class ScriptManager : public QObject
 {
@@ -21,7 +22,8 @@ public:
     Script& get(std::size_t index) { return *_scripts[index]; }
 
     void load(const QString& path);
-    void prerun();
+
+    Changeset run();
 
 signals:
     void update();
