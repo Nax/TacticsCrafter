@@ -21,7 +21,7 @@ public:
     const Script& get(std::size_t index) const { return *_scripts[index]; }
     Script& get(std::size_t index) { return *_scripts[index]; }
 
-    void load(const QString& path);
+    void load(const QString& path, bool core = false);
 
     Changeset run();
 

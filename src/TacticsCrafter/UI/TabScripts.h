@@ -21,6 +21,7 @@ private:
     ScriptManager&  _scripts;
     QListWidget*    _list;
     ScriptView*     _view;
+    bool            _showCore;
 };
 
 

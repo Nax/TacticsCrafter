@@ -1,7 +1,8 @@
 #include <TacticsCrafter/Core/Script.h>
 
-Script::Script(lua_State* lua, const QString& path)
+Script::Script(lua_State* lua, const QString& path, bool core)
 : _lua{lua}
+, _core{core}
 {
     /* Create the script function */
     luaL_loadfile(_lua, path.toStdString().c_str());

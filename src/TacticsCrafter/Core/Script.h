@@ -15,9 +15,10 @@ public:
         QString description;
     };
 
-    Script(lua_State* lua, const QString& path);
+    Script(lua_State* lua, const QString& path, bool core = false);
     ~Script();
 
+    bool core() const { return _core; }
     const Meta& meta() const { return _meta; }
     void setMeta(const Meta& m) { _meta = m; }
 
@@ -25,6 +26,7 @@ public:
 
 private:
     lua_State*  _lua;
+    bool        _core;
     int         _func;
     Meta        _meta;
 };
