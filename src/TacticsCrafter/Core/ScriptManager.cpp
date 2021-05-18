@@ -1,7 +1,8 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <TacticsCrafter/Core/ScriptManager.h>
-#include <TacticsCrafter/State/State.h>
+#include <TacticsCrafter/Core/State.h>
+#include <TacticsCrafter/API/API.h>
 
 ScriptManager::ScriptManager()
 {
@@ -43,21 +44,24 @@ Changeset ScriptManager::run()
 {
     State state;
 
-    state.apply(_lua);
+    API::init(_lua, &state);
 
     for (auto& ss : _scripts)
     {
         /* Reset the script metadata (name, author, etc.) */
-        state.script.reset();
+        state.scriptMeta.name = "Unknown";
+        state.scriptMeta.author = "Unknown";
+        state.scriptMeta.version = "0.0.0";
+        state.scriptMeta.description = "N/A";
 
         /* Execute the script */
         auto& s = *ss.get();
         s.exec();
 
         /* Store the new metadata */
-        s.setMeta(state.script.meta);
+        s.setMeta(state.scriptMeta);
     }
     emit update();
 
-    return state.patch.changeset;
+    return state.changeset;
 }

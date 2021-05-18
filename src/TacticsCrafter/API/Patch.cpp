@@ -1,8 +1,12 @@
-#include <TacticsCrafter/State/StatePatch.h>
+#include <cstdint>
+#include <TacticsCrafter/API/API.h>
 
-static int api_patch_write8(lua_State* L)
+namespace
 {
-    auto p = (StatePatch*)lua_touserdata(L, lua_upvalueindex(1));
+
+int api_patch_write8(lua_State* L)
+{
+    auto p = (State*)lua_touserdata(L, lua_upvalueindex(1));
 
     std::uint32_t addr = (std::uint32_t)luaL_checkinteger(L, 1);
     std::uint8_t value = (std::uint8_t)luaL_checkinteger(L, 2);
@@ -12,9 +16,9 @@ static int api_patch_write8(lua_State* L)
     return 0;
 }
 
-static int api_patch_write16(lua_State* L)
+int api_patch_write16(lua_State* L)
 {
-    auto p = (StatePatch*)lua_touserdata(L, lua_upvalueindex(1));
+    auto p = (State*)lua_touserdata(L, lua_upvalueindex(1));
 
     std::uint32_t addr = (std::uint32_t)luaL_checkinteger(L, 1);
     std::uint16_t value = (std::uint16_t)luaL_checkinteger(L, 2);
@@ -24,9 +28,9 @@ static int api_patch_write16(lua_State* L)
     return 0;
 }
 
-static int api_patch_write32(lua_State* L)
+int api_patch_write32(lua_State* L)
 {
-    auto p = (StatePatch*)lua_touserdata(L, lua_upvalueindex(1));
+    auto p = (State*)lua_touserdata(L, lua_upvalueindex(1));
 
     std::uint32_t addr = (std::uint32_t)luaL_checkinteger(L, 1);
     std::uint32_t value = (std::uint32_t)luaL_checkinteger(L, 2);
@@ -36,11 +40,9 @@ static int api_patch_write32(lua_State* L)
     return 0;
 }
 
-StatePatch::StatePatch()
-{
 }
 
-void StatePatch::apply(lua_State* L)
+void API::initPatch(lua_State* L, State* state)
 {
     static struct luaL_Reg funcs[] = {
         { "write8",  &api_patch_write8  },
@@ -50,7 +52,7 @@ void StatePatch::apply(lua_State* L)
     };
 
     lua_newtable(L);
-    lua_pushlightuserdata(L, this);
+    lua_pushlightuserdata(L, state);
     luaL_setfuncs(L, funcs, 1);
     lua_setglobal(L, "Patch");
 }

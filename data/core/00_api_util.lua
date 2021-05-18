@@ -8,11 +8,15 @@ Script.properties({
 Util = {}
 
 Util.clone = function (t)
-  local t2 = {}
-  for k, v in pairs(t) do
-    t2[k] = v
+  if type(t) == "table" then
+    local t2 = {}
+    for k, v in pairs(t) do
+      t2[k] = v
+    end
+    return t2
+  else
+    return t
   end
-  return t2
 end
 
 Util.deep_clone = function (t)

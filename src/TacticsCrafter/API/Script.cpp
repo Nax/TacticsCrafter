@@ -1,44 +1,36 @@
-#include <TacticsCrafter/State/StateScript.h>
+#include <TacticsCrafter/API/API.h>
 
-static int api_script_properties(lua_State* L)
+namespace
+{
+
+int api_script_properties(lua_State* L)
 {
     const char* tmp;
 
-    auto script = (StateScript*)lua_touserdata(L, lua_upvalueindex(1));
+    auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
     lua_getfield(L, 1, "name");
     if (tmp = luaL_checkstring(L, -1))
-        script->meta.name = tmp;
+        state->scriptMeta.name = tmp;
     lua_pop(L, 1);
     lua_getfield(L, 1, "version");
     if (tmp = luaL_checkstring(L, -1))
-        script->meta.version = tmp;
+        state->scriptMeta.version = tmp;
     lua_pop(L, 1);
     lua_getfield(L, 1, "author");
     if (tmp = luaL_checkstring(L, -1))
-        script->meta.author = tmp;
+        state->scriptMeta.author = tmp;
     lua_pop(L, 1);
     lua_getfield(L, 1, "description");
     if (tmp = luaL_checkstring(L, -1))
-        script->meta.description = tmp;
+        state->scriptMeta.description = tmp;
     lua_pop(L, 1);
 
     return 0;
 }
 
-StateScript::StateScript()
-{
-    reset();
 }
 
-void StateScript::reset()
-{
-    meta.name = "Unknown";
-    meta.version = "0.0.0";
-    meta.author = "Unknown";
-    meta.description = "N/A";
-}
-
-void StateScript::apply(lua_State* L)
+void API::initScript(lua_State* L, State* state)
 {
     static struct luaL_Reg funcs[] = {
         { "properties", &api_script_properties },
@@ -46,7 +38,7 @@ void StateScript::apply(lua_State* L)
     };
 
     lua_newtable(L);
-    lua_pushlightuserdata(L, this);
+    lua_pushlightuserdata(L, state);
     luaL_setfuncs(L, funcs, 1);
     lua_setglobal(L, "Script");
 }
