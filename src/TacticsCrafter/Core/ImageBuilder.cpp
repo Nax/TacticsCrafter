@@ -41,6 +41,23 @@ void fileCopyRange(std::FILE* out, std::FILE* in, std::size_t outOffset, std::si
     }
 }
 
+void fileZeroRange(std::FILE* out, std::size_t offset, std::size_t len)
+{
+    char buffer[4096]{};
+
+    std::fseek(out, (long)offset, SEEK_SET);
+
+    while (len)
+    {
+        std::size_t l = len;
+        if (l > sizeof(buffer))
+            l = sizeof(buffer);
+
+        std::fwrite(buffer, l, 1, out);
+        len -= l;
+    }
+}
+
 std::uint32_t fileOffsetFromAddr(std::uint32_t addr)
 {
     if (addr >= 0x08804000 && addr < 0x08804000 + 3833648)
@@ -114,6 +131,7 @@ void ImageBuilder::apply(const Changeset& changes)
 
     /* Decrypt the ISO */
     fileCopyRange(_fileOut, _fileIn, EBOOT_OFFSET, BOOT_OFFSET, BOOT_SIZE);
+    fileZeroRange(_fileOut, EBOOT_OFFSET + BOOT_SIZE, EBOOT_SIZE - BOOT_SIZE);
     emit progress(750);
 
     /* Apply the changes */
