@@ -2,6 +2,7 @@
 #include <cctype>
 #include <array>
 #include <TacticsCrafter/Core/Assembler.h>
+#include <TacticsCrafter/Core/State.h>
 
 #define EN_NORMAL   0x00
 #define EN_JUMP     0x01
@@ -577,6 +578,14 @@ bool Assembler::parseImmediateSymbolic(std::uint32_t* dst, int refType)
     auto it = _labels.find(l);
     if (it == _labels.end())
     {
+        /* Maybe a symbol from lua? */
+        auto it2 = _state.symbols.find(std::string(l.str, l.len));
+        if (it2 != _state.symbols.end())
+        {
+            *dst = it2->second;
+            return true;
+        }
+
         /* Forward reference - store it for later */
         LabelRef ref;
         ref.type = refType;
