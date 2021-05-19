@@ -22,6 +22,9 @@
 #define AR_RS_OFF           0x08
 #define AR_RT_RAW           0x09
 
+/* Only used internally for li/la refs */
+#define AR_IMMHI            0x0f
+
 #define AR_DEFAULT_RT       0x10
 #define AR_DEFAULT_RD       0x20
 #define AR_DEFAULT_SHIFT    0x30
@@ -397,6 +400,19 @@ bool Assembler::parseInstruction()
             instr = (004 << 26) | (imm & 0xffff);
             if (imm & 0xffff0000)
             {
+                /* If a forward ref was generated, we need to split it */
+                if (!_refs.empty() && _refs.back().addr == _addr)
+                {
+                    LabelRef refHi = _refs.back();
+                    LabelRef refLo = refHi;
+                    refHi.type = AR_IMMHI;
+                    refLo.addr += 4;
+                    refLo.index++;
+
+                    _refs.back() = refHi;
+                    _refs.push_back(refLo);
+                }
+
                 /* Split into lui + ori */
                 _code.push_back((017 << 26) | (rt << 16) | (imm >> 16));
                 _addr += 4;
@@ -692,6 +708,10 @@ bool Assembler::fixRefs()
         case AR_IMMJUMP:
             mask = 0x3ffffff;
             value >>= 2;
+            break;
+        case AR_IMMHI:
+            mask = 0xffff;
+            value >>= 16;
             break;
         }
         _code[r.index] = (value & mask) | (_code[r.index] & ~mask);
