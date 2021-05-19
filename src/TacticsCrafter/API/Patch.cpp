@@ -6,36 +6,36 @@ namespace
 
 int api_patch_write8(lua_State* L)
 {
-    auto p = (State*)lua_touserdata(L, lua_upvalueindex(1));
+    auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
 
     std::uint32_t addr = (std::uint32_t)luaL_checkinteger(L, 1);
     std::uint8_t value = (std::uint8_t)luaL_checkinteger(L, 2);
 
-    p->changeset.write8(addr, value);
+    state->changeset->write8(addr, value);
 
     return 0;
 }
 
 int api_patch_write16(lua_State* L)
 {
-    auto p = (State*)lua_touserdata(L, lua_upvalueindex(1));
+    auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
 
     std::uint32_t addr = (std::uint32_t)luaL_checkinteger(L, 1);
     std::uint16_t value = (std::uint16_t)luaL_checkinteger(L, 2);
 
-    p->changeset.write16(addr, value);
+    state->changeset->write16(addr, value);
 
     return 0;
 }
 
 int api_patch_write32(lua_State* L)
 {
-    auto p = (State*)lua_touserdata(L, lua_upvalueindex(1));
+    auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
 
     std::uint32_t addr = (std::uint32_t)luaL_checkinteger(L, 1);
     std::uint32_t value = (std::uint32_t)luaL_checkinteger(L, 2);
 
-    p->changeset.write32(addr, value);
+    state->changeset->write32(addr, value);
 
     return 0;
 }

@@ -67,7 +67,7 @@ std::uint32_t fileOffsetFromAddr(std::uint32_t addr)
     return 0;
 }
 
-void fileWriteChange(std::FILE* out, Changeset::Change change)
+void fileWriteChange(std::FILE* out, const Changeset::Change& change)
 {
     std::uint32_t addr;
 
@@ -87,6 +87,9 @@ void fileWriteChange(std::FILE* out, Changeset::Change change)
         break;
     case Changeset::ChangeType::Write32:
         std::fwrite(&change.u32, 4, 1, out);
+        break;
+    case Changeset::ChangeType::Blob:
+        std::fwrite(change.blob, change.blobSize, 1, out);
         break;
     }
 }

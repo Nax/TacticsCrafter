@@ -40,10 +40,12 @@ void ScriptManager::load(const QString& path, bool core)
     _scripts.push_back(std::make_unique<Script>(_lua, path, core));
 }
 
-Changeset ScriptManager::run()
+const Changeset& ScriptManager::run()
 {
     State state;
 
+    _changes.clear();
+    state.changeset = &_changes;
     API::init(_lua, &state);
 
     for (auto& ss : _scripts)
@@ -64,5 +66,5 @@ Changeset ScriptManager::run()
     }
     emit update();
 
-    return state.changeset;
+    return _changes;
 }

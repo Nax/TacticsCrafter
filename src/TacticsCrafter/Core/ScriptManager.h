@@ -23,7 +23,7 @@ public:
 
     void load(const QString& path, bool core = false);
 
-    Changeset run();
+    const Changeset& run();
 
 signals:
     void update();
@@ -31,6 +31,7 @@ signals:
 private:
     lua_State*  _lua;
 
+    Changeset                               _changes;
     std::vector<std::unique_ptr<Script>>    _scripts;
 };
 

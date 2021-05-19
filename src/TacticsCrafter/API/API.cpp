@@ -2,6 +2,7 @@
 
 void API::init(lua_State* L, State* state)
 {
+    initASM(L, state);
     initPatch(L, state);
     initScript(L, state);
     initSymbols(L, state);

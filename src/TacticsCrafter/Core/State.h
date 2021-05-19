@@ -10,8 +10,8 @@
 struct State
 {
     Script*                                         script;
+    Changeset*                                      changeset;
     Script::Meta                                    scriptMeta;
-    Changeset                                       changeset;
     std::unordered_map<std::string, std::uint32_t>  symbols;
 };
 
