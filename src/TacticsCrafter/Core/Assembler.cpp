@@ -13,13 +13,14 @@
 
 #define AR_NONE             0x00
 #define AR_IMM              0x01
-#define AR_IMMBRANCH        0x02
-#define AR_RS               0x03
-#define AR_RT               0x04
-#define AR_RD               0x05
-#define AR_SA               0x06
-#define AR_RS_OFF           0x07
-#define AR_RT_RAW           0x08
+#define AR_IMMJUMP          0x02
+#define AR_IMMBRANCH        0x03
+#define AR_RS               0x04
+#define AR_RT               0x05
+#define AR_RD               0x06
+#define AR_SA               0x07
+#define AR_RS_OFF           0x08
+#define AR_RT_RAW           0x09
 
 #define AR_DEFAULT_RT       0x10
 #define AR_DEFAULT_RD       0x20
@@ -51,8 +52,8 @@ const char* const kRegisters[32] = {
 
 const OpData kOpData[] = {
     /* Regular instructions */
-    { "j",     002, EN_JUMP,    { AR_IMM } },
-    { "jal",   003, EN_JUMP,    { AR_IMM } },
+    { "j",     002, EN_JUMP,    { AR_IMMJUMP } },
+    { "jal",   003, EN_JUMP,    { AR_IMMJUMP } },
     { "beq",   004, EN_NORMAL,  { AR_RS, AR_RT, AR_IMMBRANCH } },
     { "bne",   005, EN_NORMAL,  { AR_RS, AR_RT, AR_IMMBRANCH } },
     { "blez",  006, EN_NORMAL,  { AR_RS, AR_IMMBRANCH } },
@@ -220,7 +221,9 @@ bool Assembler::run(std::uint32_t addr, const char* src)
         if (parseInstruction())
             continue;
 
-        return parseEOF();
+        if (!parseEOF())
+            return false;
+        return fixRefs();
     }
 }
 
@@ -285,12 +288,13 @@ bool Assembler::parseInstruction()
         case AR_NONE:
             break;
         case AR_IMM:
-            if (!parseImmediate(&imm))
+        case AR_IMMJUMP:
+            if (!parseImmediate(&imm, op->args[i] & 0xf))
                 return false;
             skipWS();
             break;
         case AR_IMMBRANCH:
-            if (!parseImmediate(&imm))
+            if (!parseImmediate(&imm, op->args[i] & 0xf))
                 return false;
             skipWS();
             imm = ((imm - (_addr + 4)) >> 2) & 0xffff;
@@ -344,13 +348,13 @@ bool Assembler::parseInstruction()
             skipWS();
             break;
         case AR_RT_RAW:
-            if (!parseImmediate(&tmp32))
+            if (!parseImmediateNoSymbolic(&tmp32))
                 return false;
             skipWS();
             rt = tmp32 & 0x3f;
             break;
         case AR_SA:
-            if (!parseImmediate(&tmp32))
+            if (!parseImmediateNoSymbolic(&tmp32))
                 return false;
             skipWS();
             sa = tmp32 & 0x3f;
@@ -461,7 +465,12 @@ bool Assembler::parseInstruction()
     return true;
 }
 
-bool Assembler::parseImmediate(std::uint32_t* dst)
+bool Assembler::parseImmediate(std::uint32_t* dst, int refType)
+{
+    return parseImmediateNoSymbolic(dst) || parseImmediateSymbolic(dst, refType);
+}
+
+bool Assembler::parseImmediateNoSymbolic(std::uint32_t* dst)
 {
     std::int64_t v{};
     std::uint8_t base{10};
@@ -470,7 +479,7 @@ bool Assembler::parseImmediate(std::uint32_t* dst)
 
     /* Check for an actual number */
     if (!(_src[i] == '-' || std::isdigit(_src[i])))
-        return parseImmediateSymbolic(dst);
+        return false;
 
     /* Check for a negative number */
     if (_src[i] == '-')
@@ -530,24 +539,44 @@ bool Assembler::parseImmediate(std::uint32_t* dst)
     return true;
 }
 
-bool Assembler::parseImmediateSymbolic(std::uint32_t* dst)
+bool Assembler::parseImmediateSymbolic(std::uint32_t* dst, int refType)
 {
     std::size_t cursor = _cursor;
+    std::uint8_t dummy;
     char buffer[256];
+
+    /* Register names are not valid labels */
+    if (parseRegister(&dummy))
+    {
+        _cursor = cursor;
+        return false;
+    }
 
     if (!parseIdentifier(buffer, sizeof(buffer)))
         return false;
 
     Label l;
-    l.str = buffer;
+    l.str = _src + cursor;
     l.len = std::strlen(buffer);
     auto it = _labels.find(l);
     if (it == _labels.end())
     {
-        _cursor = cursor;
-        return false;
+        /* Forward reference - store it for later */
+        LabelRef ref;
+        ref.type = refType;
+        ref.index = _code.size();
+        ref.addr = _addr;
+        ref.label = l;
+        _refs.push_back(ref);
+
+        /* Large positive value for worst case li/la expansion */
+        *dst = 0x7fffffff;
+        return true;
     }
-    *dst = it->second;
+    else
+    {
+        *dst = it->second;
+    }
     return true;
 }
 
@@ -604,7 +633,7 @@ bool Assembler::parseRegisterOffset(std::uint8_t* dstReg, std::uint32_t* dstOff)
     std::uint8_t r;
     std::uint32_t off;
 
-    if (parseImmediate(&off))
+    if (parseImmediateNoSymbolic(&off))
     {
         if (!parseChar('(')) goto reject;
         if (!parseRegister(&r)) goto reject;
@@ -638,4 +667,35 @@ bool Assembler::parseChar(char c)
 bool Assembler::parseEOF()
 {
     return _cursor == _srcLen;
+}
+
+bool Assembler::fixRefs()
+{
+    std::uint32_t mask;
+    std::uint32_t value;
+
+    for (const auto& r : _refs)
+    {
+        auto it = _labels.find(r.label);
+        if (it == _labels.end())
+            return false;
+        value = it->second;
+        switch (r.type)
+        {
+        case AR_IMM:
+            mask = 0xffff;
+            break;
+        case AR_IMMBRANCH:
+            mask = 0xffff;
+            value = ((value - (r.addr + 4)) >> 2);
+            break;
+        case AR_IMMJUMP:
+            mask = 0x3ffffff;
+            value >>= 2;
+            break;
+        }
+        _code[r.index] = (value & mask) | (_code[r.index] & ~mask);
+    }
+
+    return true;
 }

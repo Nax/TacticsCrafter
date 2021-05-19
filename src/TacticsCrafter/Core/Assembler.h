@@ -24,16 +24,26 @@ private:
         bool operator<(const Label& other) const { return (len == other.len) ? (std::strncmp(str, other.str, len) < 0) : (len < other.len); }
     };
 
+    struct LabelRef
+    {
+        std::size_t     index;
+        std::uint32_t   addr;
+        int             type;
+        Label           label;
+    };
+
     void skipWS();
     bool parseLabel();
     bool parseInstruction();
     bool parseIdentifier(char* dst, std::size_t len);
-    bool parseImmediate(std::uint32_t* dst);
-    bool parseImmediateSymbolic(std::uint32_t* dst);
+    bool parseImmediate(std::uint32_t* dst, int refType);
+    bool parseImmediateNoSymbolic(std::uint32_t* dst);
+    bool parseImmediateSymbolic(std::uint32_t* dst, int refType);
     bool parseRegister(std::uint8_t* dst);
     bool parseRegisterOffset(std::uint8_t* dstReg, std::uint32_t* dstOff);
     bool parseChar(char c);
     bool parseEOF();
+    bool fixRefs();
 
     State& _state;
 
@@ -45,6 +55,7 @@ private:
     char*           _error;
 
     std::map<Label, std::uint32_t>  _labels;
+    std::vector<LabelRef>           _refs;
     std::vector<std::uint32_t>      _code;
 };
 
