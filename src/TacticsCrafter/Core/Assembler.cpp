@@ -182,6 +182,16 @@ const OpData* lookupInstr(const char* mnemo)
     return nullptr;
 }
 
+bool isIdentifierLeadingChar(char c)
+{
+    return std::isalpha(c) || c == '_';
+}
+
+bool isIdentifierChar(char c)
+{
+    return isIdentifierLeadingChar(c) || std::isdigit(c);
+}
+
 }
 
 Assembler::Assembler(State& state)
@@ -203,6 +213,10 @@ bool Assembler::run(std::uint32_t addr, const char* src)
     for (;;)
     {
         skipWS();
+
+        if (parseLabel())
+            continue;
+
         if (parseInstruction())
             continue;
 
@@ -221,6 +235,25 @@ void Assembler::skipWS()
             _line++;
         _cursor++;
     }
+}
+
+bool Assembler::parseLabel()
+{
+    std::size_t cursor = _cursor;
+
+    if (!isIdentifierLeadingChar(_src[cursor++]))
+        return false;
+    while (isIdentifierChar(_src[cursor]))
+        cursor++;
+    if (_src[cursor] != ':')
+        return false;
+
+    Label l;
+    l.str = _src + _cursor;
+    l.len = cursor - _cursor;
+    _labels[l] = _addr;
+    _cursor = cursor + 1;
+    return true;
 }
 
 bool Assembler::parseInstruction()
@@ -437,7 +470,7 @@ bool Assembler::parseImmediate(std::uint32_t* dst)
 
     /* Check for an actual number */
     if (!(_src[i] == '-' || std::isdigit(_src[i])))
-        return false;
+        return parseImmediateSymbolic(dst);
 
     /* Check for a negative number */
     if (_src[i] == '-')
@@ -497,6 +530,27 @@ bool Assembler::parseImmediate(std::uint32_t* dst)
     return true;
 }
 
+bool Assembler::parseImmediateSymbolic(std::uint32_t* dst)
+{
+    std::size_t cursor = _cursor;
+    char buffer[256];
+
+    if (!parseIdentifier(buffer, sizeof(buffer)))
+        return false;
+
+    Label l;
+    l.str = buffer;
+    l.len = std::strlen(buffer);
+    auto it = _labels.find(l);
+    if (it == _labels.end())
+    {
+        _cursor = cursor;
+        return false;
+    }
+    *dst = it->second;
+    return true;
+}
+
 bool Assembler::parseIdentifier(char* dst, std::size_t len)
 {
     std::size_t size{};
@@ -504,14 +558,14 @@ bool Assembler::parseIdentifier(char* dst, std::size_t len)
     char c;
 
     c = _src[i++];
-    if (!std::isalpha(c))
+    if (!isIdentifierLeadingChar(c))
         return false;
     dst[size++] = c;
 
     while (size < len)
     {
         c = _src[i++];
-        if (std::isalnum(c))
+        if (isIdentifierChar(c))
         {
             dst[size++] = c;
         }
