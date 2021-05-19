@@ -18,6 +18,9 @@ private:
     bool parseInstruction();
     bool parseIdentifier(char* dst, std::size_t len);
     bool parseImmediate(std::uint32_t* dst);
+    bool parseRegister(std::uint8_t* dst);
+    bool parseRegisterOffset(std::uint8_t* dstReg, std::uint32_t* dstOff);
+    bool parseChar(char c);
     bool parseEOF();
 
     State& _state;
@@ -27,6 +30,7 @@ private:
     const char*     _src;
     std::size_t     _srcLen;
     std::size_t     _cursor;
+    char*           _error;
 
     std::vector<std::uint32_t>  _code;
 };

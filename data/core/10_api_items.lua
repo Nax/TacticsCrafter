@@ -8,6 +8,7 @@ Script.properties({
 -- Load item data
 Item = {}
 Item.data = Util.deep_clone(require('items/data'))
+Item.count = 0x13c
 
 -- Register item IDs
 local item_ids = require('items/id')
