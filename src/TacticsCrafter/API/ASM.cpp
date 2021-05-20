@@ -5,6 +5,21 @@
 namespace
 {
 
+void asmError(lua_State* L, Assembler& as)
+{
+    luaL_Buffer b;
+
+    luaL_buffinit(L, &b);
+    luaL_addstring(&b, "ASM error line ");
+    lua_pushinteger(L, as.line());
+    luaL_addvalue(&b);
+    luaL_addstring(&b, ": ");
+    luaL_addstring(&b, as.error().c_str());
+    luaL_pushresult(&b);
+
+    lua_error(L);
+}
+
 int api_asm_patch(lua_State* L)
 {
     auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
@@ -18,10 +33,7 @@ int api_asm_patch(lua_State* L)
         state->changeset->blob(addr, (char*)as.code().data(), as.code().size() * 4);
     }
     else
-    {
-        lua_pushstring(L, "ASM error");
-        lua_error(L);
-    }
+        asmError(L, as);
 
     return 0;
 }
@@ -53,8 +65,7 @@ int api_asm_new(lua_State* L)
     return 1;
 
 error:
-    lua_pushstring(L, "ASM error");
-    lua_error(L);
+    asmError(L, as);
     return 0;
 }
 

@@ -201,7 +201,6 @@ bool isIdentifierChar(char c)
 
 Assembler::Assembler(State& state)
 : _state{state}
-, _error{}
 {
 
 }
@@ -210,7 +209,7 @@ void Assembler::reset()
 {
     _line = 1;
     _cursor = 0;
-    _error = nullptr;
+    _error = "";
     _labels.clear();
     _refs.clear();
     _code.clear();
@@ -234,8 +233,14 @@ bool Assembler::run(std::uint32_t addr, const char* src)
         if (parseInstruction())
             continue;
 
-        if (!parseEOF())
+        if (!_error.empty())
             return false;
+
+        if (!parseEOF())
+        {
+            _error = "Expected end-of-input";
+            return false;
+        }
         return fixRefs();
     }
 }
@@ -292,7 +297,10 @@ bool Assembler::parseInstruction()
     /* We do! Look up which one */
     const OpData* op = lookupInstr(mnemo);
     if (!op)
+    {
+        _error = std::string("Unknown instruction: ") + mnemo;
         return false;
+    }
 
     for (int i = 0; i < 3; ++i)
     {
@@ -303,12 +311,18 @@ bool Assembler::parseInstruction()
         case AR_IMM:
         case AR_IMMJUMP:
             if (!parseImmediate(&imm, op->args[i] & 0xf))
+            {
+                _error = "Expected immediate";
                 return false;
+            }
             skipWS();
             break;
         case AR_IMMBRANCH:
             if (!parseImmediate(&imm, op->args[i] & 0xf))
+            {
+                _error = "Expected immediate branch target";
                 return false;
+            }
             skipWS();
             imm = ((imm - (_addr + 4)) >> 2) & 0xffff;
             break;
@@ -350,6 +364,7 @@ bool Assembler::parseInstruction()
                     rd = 31;
                     continue;
                 case 0:
+                    _error = "Expected register";
                     return false;
                 }
             }
@@ -357,18 +372,27 @@ bool Assembler::parseInstruction()
             break;
         case AR_RS_OFF:
             if (!parseRegisterOffset(&rs, &imm))
+            {
+                _error = "Expected register-offset";
                 return false;
+            }
             skipWS();
             break;
         case AR_RT_RAW:
             if (!parseImmediateNoSymbolic(&tmp32))
+            {
+                _error = "Expected numeric value";
                 return false;
+            }
             skipWS();
             rt = tmp32 & 0x3f;
             break;
         case AR_SA:
             if (!parseImmediateNoSymbolic(&tmp32))
+            {
+                _error = "Expected shift amount";
                 return false;
+            }
             skipWS();
             sa = tmp32 & 0x3f;
             break;
@@ -377,6 +401,7 @@ bool Assembler::parseInstruction()
         /* Consume commas */
         if (i < 2 && op->args[i + 1] != AR_NONE)
         {
+            /* TODO: Handle this better (e.g. optional args) */
             parseChar(',');
             skipWS();
         }
@@ -712,7 +737,12 @@ bool Assembler::fixRefs()
     {
         auto it = _labels.find(r.label);
         if (it == _labels.end())
+        {
+            _error = std::string("Unknown reference: ") + r.label.str;
             return false;
+        }
+
+
         value = it->second;
         switch (r.type)
         {

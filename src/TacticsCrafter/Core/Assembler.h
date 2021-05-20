@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#include <string>
 #include <map>
 
 struct State;
@@ -11,9 +12,13 @@ class Assembler
 {
 public:
     Assembler(State& state);
+
     void reset();
     bool run(std::uint32_t addr, const char* src);
+
     const auto& code() const { return _code; }
+    const auto& error() const { return _error; }
+    const auto  line() const { return _line; }
 
 private:
     struct Label
@@ -53,7 +58,7 @@ private:
     const char*     _src;
     std::size_t     _srcLen;
     std::size_t     _cursor;
-    char*           _error;
+    std::string     _error;
 
     std::map<Label, std::uint32_t>  _labels;
     std::vector<LabelRef>           _refs;
