@@ -54,6 +54,7 @@ void TabScripts::refresh()
         {
             auto item = new QListWidgetItem;
             item->setText(s.meta().name);
+            item->setForeground(s.error() ? QColorConstants::Red : s.core() ? QColorConstants::DarkBlue : QColorConstants::Black);
             item->setData(Qt::UserRole + 0, (int)i);
             _list->addItem(item);
         }

@@ -37,6 +37,7 @@ public:
     ~Script();
 
     bool core() const { return _core; }
+    bool error() const { return _error; }
 
     auto&               opts() { return _opts; }
     const QStringList&  log() const { return _log; }
@@ -58,6 +59,7 @@ private:
     Meta                    _meta;
     QStringList             _log;
     std::vector<Option>     _opts;
+    bool                    _error;
 };
 
 #endif /* TC_CORE_SCRIPT_H */

@@ -19,12 +19,14 @@ int api_print(lua_State* L)
 Script::Script(lua_State* lua, const QString& path, bool core)
 : _lua{lua}
 , _core{core}
+, _error{}
 {
     /* Create the script function */
     if (luaL_loadfile(_lua, path.toStdString().c_str()))
     {
         _func = LUA_NOREF;
         _log.push_back(lua_tostring(_lua, -1));
+        _error = true;
     }
     else
     {
@@ -59,8 +61,9 @@ void Script::exec()
 {
     if (_func != LUA_NOREF)
     {
-        /* Clear the log */
+        /* Clear the log & error flag */
         _log.clear();
+        _error = false;
 
         /* Redirect print */
         lua_pushlightuserdata(_lua, this);
@@ -72,6 +75,7 @@ void Script::exec()
         if (lua_pcall(_lua, 0, 0, 0))
         {
             _log.push_back(lua_tostring(_lua, -1));
+            _error = true;
         }
     }
 }
