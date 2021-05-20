@@ -40,6 +40,45 @@ void ScriptManager::load(const QString& path, bool core)
     _scripts.push_back(std::make_unique<Script>(_lua, path, core));
 }
 
+bool ScriptManager::moveUp(std::size_t index)
+{
+    if (index == 0)
+        return false;
+
+    std::size_t index2 = index - 1;
+
+    if (_scripts[index]->core() || _scripts[index2]->core())
+        return false;
+
+    std::swap(_scripts[index], _scripts[index2]);
+    run();
+    return true;
+}
+
+bool ScriptManager::moveDown(std::size_t index)
+{
+    if (index == _scripts.size() - 1)
+        return false;
+
+    std::size_t index2 = index + 1;
+
+    if (_scripts[index]->core() || _scripts[index2]->core())
+        return false;
+
+    std::swap(_scripts[index], _scripts[index2]);
+    run();
+    return true;
+}
+
+bool ScriptManager::remove(std::size_t index)
+{
+    if (_scripts[index]->core())
+        return false;
+    _scripts.erase(_scripts.begin() + index);
+    run();
+    return true;
+}
+
 const State& ScriptManager::run()
 {
     _state = State();

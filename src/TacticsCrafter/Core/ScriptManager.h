@@ -24,6 +24,10 @@ public:
 
     void load(const QString& path, bool core = false);
 
+    bool moveUp(std::size_t index);
+    bool moveDown(std::size_t index);
+    bool remove(std::size_t index);
+
     const State& run();
 
 signals:

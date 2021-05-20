@@ -19,8 +19,22 @@ TabScripts::TabScripts(ScriptManager& scripts, QWidget* parent)
     auto checkbox = new QCheckBox("Show Core Scripts");
     connect(checkbox, &QCheckBox::stateChanged, [this](int state){ _showCore = !!state; refresh(); });
 
+    auto btnUp = new QPushButton("Up");
+    auto btnDown = new QPushButton("Down");
+    auto btnRemove = new QPushButton("Remove");
+
+    connect(btnUp, &QPushButton::pressed, this, &TabScripts::moveUp);
+    connect(btnDown, &QPushButton::pressed, this, &TabScripts::moveDown);
+    connect(btnRemove, &QPushButton::pressed, this, &TabScripts::remove);
+
+    auto layoutControls = new QHBoxLayout;
+    layoutControls->addWidget(btnUp);
+    layoutControls->addWidget(btnDown);
+    layoutControls->addWidget(btnRemove);
+
     auto listLayout = new QVBoxLayout;
     listLayout->addWidget(_list, 1);
+    listLayout->addLayout(layoutControls);
     listLayout->addWidget(checkbox);
 
     /* Script Viewer */
@@ -41,7 +55,40 @@ void TabScripts::select(int index)
 {
     auto item = _list->item(index);
     std::size_t i = (std::size_t)item->data(Qt::UserRole + 0).toInt();
-    _view->setScript(&_scripts.get(i));
+    if (i >= _scripts.count())
+        _view->setScript(nullptr);
+    else
+        _view->setScript(&_scripts.get(i));
+}
+
+void TabScripts::moveUp()
+{
+    if (_list->selectedItems().empty())
+        return;
+    auto item = _list->selectedItems().first();
+    std::size_t i = (std::size_t)item->data(Qt::UserRole + 0).toInt();
+
+    _scripts.moveUp(i);
+}
+
+void TabScripts::moveDown()
+{
+    if (_list->selectedItems().empty())
+        return;
+    auto item = _list->selectedItems().first();
+    std::size_t i = (std::size_t)item->data(Qt::UserRole + 0).toInt();
+
+    _scripts.moveDown(i);
+}
+
+void TabScripts::remove()
+{
+    if (_list->selectedItems().empty())
+        return;
+    auto item = _list->selectedItems().first();
+    std::size_t i = (std::size_t)item->data(Qt::UserRole + 0).toInt();
+
+    _scripts.remove(i);
 }
 
 void TabScripts::refresh()

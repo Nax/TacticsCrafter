@@ -15,6 +15,9 @@ public:
 
 private slots:
     void select(int index);
+    void moveUp();
+    void moveDown();
+    void remove();
     void refresh();
 
 private:
