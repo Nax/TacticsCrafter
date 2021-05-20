@@ -40,6 +40,18 @@ int api_patch_write32(lua_State* L)
     return 0;
 }
 
+int api_patch_string(lua_State* L)
+{
+    auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
+
+    std::uint32_t addr = (std::uint32_t)luaL_checkinteger(L, 1);
+    const char* str = luaL_checkstring(L, 2);
+
+    state->changeset->blob(addr, str, std::strlen(str));
+
+    return 0;
+}
+
 int api_patch_cstring(lua_State* L)
 {
     auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
@@ -57,10 +69,11 @@ int api_patch_cstring(lua_State* L)
 void API::initPatch(lua_State* L, State* state)
 {
     static struct luaL_Reg funcs[] = {
-        { "write8",  &api_patch_write8  },
-        { "write16", &api_patch_write16 },
-        { "write32", &api_patch_write32 },
-        { "cstring", &api_patch_cstring },
+        { "write8",   &api_patch_write8  },
+        { "write16",  &api_patch_write16 },
+        { "write32",  &api_patch_write32 },
+        { "string",   &api_patch_string  },
+        { "cstring",  &api_patch_cstring },
         { nullptr }
     };
 
