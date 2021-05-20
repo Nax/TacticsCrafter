@@ -22,6 +22,7 @@ FileSelector::FileSelector(QWidget* parent)
     setLayout(layout);
 
     connect(_button, &QPushButton::pressed, this, &FileSelector::selectFile);
+    connect(_lineEdit, &QLineEdit::textChanged, this, &FileSelector::selected);
 }
 
 void FileSelector::setLabel(const QString label)
