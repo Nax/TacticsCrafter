@@ -11,6 +11,7 @@ class Assembler
 {
 public:
     Assembler(State& state);
+    void reset();
     bool run(std::uint32_t addr, const char* src);
     const auto& code() const { return _code; }
 

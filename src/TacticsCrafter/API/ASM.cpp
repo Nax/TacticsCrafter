@@ -26,12 +26,45 @@ int api_asm_patch(lua_State* L)
     return 0;
 }
 
+int api_asm_new(lua_State* L)
+{
+    auto state = (State*)lua_touserdata(L, lua_upvalueindex(1));
+
+    std::uint32_t addr = 0x08000000;
+    const char* src = luaL_checkstring(L, 1);
+    Assembler as{*state};
+
+    if (!as.run(addr, src))
+        goto error;
+
+    lua_getglobal(L, "Memory");
+    lua_getfield(L, -1, "alloc");
+    lua_remove(L, -2);
+    lua_pushinteger(L, as.code().size() * 4);
+    lua_call(L, 1, 1);
+    addr = (std::uint32_t)luaL_checkinteger(L, -1);
+
+    if (!as.run(addr, src))
+        goto error;
+
+    state->changeset->blob(addr, (char*)as.code().data(), as.code().size() * 4);
+
+    lua_pushinteger(L, addr);
+    return 1;
+
+error:
+    lua_pushstring(L, "ASM error");
+    lua_error(L);
+    return 0;
+}
+
 }
 
 void API::initASM(lua_State* L, State* state)
 {
     static struct luaL_Reg funcs[] = {
         { "patch",  &api_asm_patch },
+        { "new",    &api_asm_new },
         { nullptr }
     };
 

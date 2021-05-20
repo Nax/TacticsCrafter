@@ -9,8 +9,11 @@
 
 struct State
 {
+    State() : extraMemory{} {}
+
     Script*                                         script;
     Changeset*                                      changeset;
+    std::uint32_t                                   extraMemory;
     Script::Meta                                    scriptMeta;
     std::unordered_map<std::string, std::uint32_t>  symbols;
 };

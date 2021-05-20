@@ -206,14 +206,23 @@ Assembler::Assembler(State& state)
 
 }
 
-bool Assembler::run(std::uint32_t addr, const char* src)
+void Assembler::reset()
 {
     _line = 1;
+    _cursor = 0;
+    _error = nullptr;
+    _labels.clear();
+    _refs.clear();
+    _code.clear();
+}
+
+bool Assembler::run(std::uint32_t addr, const char* src)
+{
+    reset();
+
     _addr = addr;
     _src = src;
     _srcLen = std::strlen(src);
-    _cursor = 0;
-    _error = nullptr;
 
     for (;;)
     {

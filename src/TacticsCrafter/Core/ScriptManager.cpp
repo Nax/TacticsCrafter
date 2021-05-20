@@ -40,31 +40,30 @@ void ScriptManager::load(const QString& path, bool core)
     _scripts.push_back(std::make_unique<Script>(_lua, path, core));
 }
 
-const Changeset& ScriptManager::run()
+const State& ScriptManager::run()
 {
-    State state;
-
+    _state = State();
     _changes.clear();
-    state.changeset = &_changes;
-    API::init(_lua, &state);
+    _state.changeset = &_changes;
+    API::init(_lua, &_state);
 
     for (auto& ss : _scripts)
     {
         /* Reset the script metadata (name, author, etc.) */
-        state.scriptMeta.name = "Unknown";
-        state.scriptMeta.author = "Unknown";
-        state.scriptMeta.version = "0.0.0";
-        state.scriptMeta.description = "N/A";
+        _state.scriptMeta.name = "Unknown";
+        _state.scriptMeta.author = "Unknown";
+        _state.scriptMeta.version = "0.0.0";
+        _state.scriptMeta.description = "N/A";
 
         /* Execute the script */
         auto& s = *ss.get();
-        state.script = &s;
+        _state.script = &s;
         s.exec();
 
         /* Store the new metadata */
-        s.setMeta(state.scriptMeta);
+        s.setMeta(_state.scriptMeta);
     }
     emit update();
 
-    return _changes;
+    return _state;
 }

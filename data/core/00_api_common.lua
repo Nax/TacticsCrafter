@@ -1,6 +1,6 @@
 Script.properties({
-  name = 'CORE: API - Util',
-  description = 'TacticsCrafter\'s Utilities API',
+  name = 'CORE: API - Common',
+  description = 'TacticsCrafter\'s Common APIs, used by everything else',
   author = 'Nax',
   version = '1.0.0'
 })
@@ -29,4 +29,9 @@ Util.deep_clone = function (t)
   else
     return t
   end
+end
+
+-- Load symbols
+for k, v in pairs(require('symbols/symbols')) do
+  Symbols[k] = v
 end

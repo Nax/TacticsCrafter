@@ -6,6 +6,7 @@
 #include <QObject>
 #include <TacticsCrafter/Core/Lua.h>
 #include <TacticsCrafter/Core/Script.h>
+#include <TacticsCrafter/Core/State.h>
 #include <TacticsCrafter/Core/Changeset.h>
 
 class ScriptManager : public QObject
@@ -23,7 +24,7 @@ public:
 
     void load(const QString& path, bool core = false);
 
-    const Changeset& run();
+    const State& run();
 
 signals:
     void update();
@@ -31,6 +32,7 @@ signals:
 private:
     lua_State*  _lua;
 
+    State                                   _state;
     Changeset                               _changes;
     std::vector<std::unique_ptr<Script>>    _scripts;
 };

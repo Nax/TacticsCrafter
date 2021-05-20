@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <QObject>
 
-class Changeset;
+struct State;
 class ImageBuilder : public QObject
 {
     Q_OBJECT
@@ -15,7 +15,7 @@ public:
 
     void setInput(const char* path);
     void setOutput(const char* path);
-    void apply(const Changeset& changes);
+    void apply(const State& state);
     void finish();
 
 signals:

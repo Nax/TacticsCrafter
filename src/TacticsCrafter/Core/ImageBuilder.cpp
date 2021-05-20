@@ -1,5 +1,5 @@
 #include <TacticsCrafter/Core/ImageBuilder.h>
-#include <TacticsCrafter/Core/Changeset.h>
+#include <TacticsCrafter/Core/State.h>
 
 #define EBOOT_SIZE      (3835392)
 #define BOOT_SIZE       (3835044)
@@ -58,11 +58,29 @@ void fileZeroRange(std::FILE* out, std::size_t offset, std::size_t len)
     }
 }
 
+void write32(std::FILE* out, std::uint32_t offset, std::uint32_t value)
+{
+    std::fseek(out, (long)offset, SEEK_SET);
+    std::fwrite(&value, 4, 1, out);
+}
+
+std::uint32_t swap32(std::uint32_t v)
+{
+    return ((v & 0xff) << 24)
+        | ((v & 0xff00) << 8)
+        | ((v & 0xff0000) >> 8)
+        | ((v & 0xff000000) >> 24);
+}
+
 std::uint32_t fileOffsetFromAddr(std::uint32_t addr)
 {
     if (addr >= 0x08804000 && addr < 0x08804000 + 3833648)
     {
         return EBOOT_OFFSET + 0x54 + (addr - 0x08804000);
+    }
+    if (addr >= 0x08804000 + 0xfe5200 && addr < 0x0a000000)
+    {
+        return 0xbc8000 + addr - (0x08804000 + 0xfe5200);
     }
     return 0;
 }
@@ -121,7 +139,7 @@ void ImageBuilder::setOutput(const char* path)
     _fileOut = std::fopen(path, "wb");
 }
 
-void ImageBuilder::apply(const Changeset& changes)
+void ImageBuilder::apply(const State& state)
 {
     emit progress(0);
 
@@ -135,10 +153,24 @@ void ImageBuilder::apply(const Changeset& changes)
     /* Decrypt the ISO */
     fileCopyRange(_fileOut, _fileIn, EBOOT_OFFSET, BOOT_OFFSET, BOOT_SIZE);
     fileZeroRange(_fileOut, EBOOT_OFFSET + BOOT_SIZE, EBOOT_SIZE - BOOT_SIZE);
+
+    if (state.extraMemory)
+    {
+        /* Patch in the extra size */
+        write32(_fileOut, EBOOT_OFFSET + 0x48, 0xfe5200 + state.extraMemory);
+        write32(_fileOut, fileOffsetFromAddr(0x08a73560), state.extraMemory);
+
+        /* Parasite the update file */
+        write32(_fileOut, 0xd06a, state.extraMemory);
+        write32(_fileOut, 0xd06a + 4, swap32(state.extraMemory));
+
+        fileZeroRange(_fileOut, 0xbc8000, state.extraMemory);
+    }
+
     emit progress(750);
 
     /* Apply the changes */
-    for (const auto& c : changes)
+    for (const auto& c : *state.changeset)
         fileWriteChange(_fileOut, c);
 
     emit progress(1000);
