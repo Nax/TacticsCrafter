@@ -23,6 +23,7 @@ private:
 
     QAction*    _actionImportScript;
     QAction*    _actionQuit;
+    QAction*    _actionAbout;
 };
 
 #endif /* TC_MAIN_WINDOW_H */

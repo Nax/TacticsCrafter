@@ -33,6 +33,11 @@ void MainWindow::createActions()
     _actionQuit = new QAction("Quit");
     _actionQuit->setShortcut(QKeySequence("Ctrl+Q"));
     connect(_actionQuit, &QAction::triggered, [this](){ close(); });
+
+    _actionAbout = new QAction(tr("About TacticsCrafter..."));
+    connect(_actionAbout, &QAction::triggered, [this](){
+        QMessageBox::about(this, "TacticsCrafter", "© 2021, Maxime Bacoux");
+    });
 }
 
 void MainWindow::createMenus()
@@ -49,7 +54,8 @@ void MainWindow::createMenus()
     menuEdit->addAction(tr("Paste"))->setShortcut(QKeySequence("Ctrl+V"));
     menuEdit->addAction(tr("Cut"))->setShortcut(QKeySequence("Ctrl+X"));
 
-    m->addMenu(tr("&About"));
+    auto menuHelp = m->addMenu(tr("&Help"));
+    menuHelp->addAction(_actionAbout);
 }
 
 void MainWindow::createWidgets()
