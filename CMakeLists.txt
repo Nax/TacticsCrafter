@@ -3,9 +3,35 @@ project(TacticsCrafter)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH 0)
+set(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 add_subdirectory(vendor)
 add_subdirectory(src)
+
+# CPack
+set(CPACK_PACKAGE_NAME "TacticsCrafter")
+set(CPACK_PACKAGE_VENDOR "Maxime Bacoux")
+set(CPACK_PACKAGE_CONTACT "Maxime Bacoux")
+set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}/pkg")
+
+set(CPACK_BUILD_CONFIG "Release")
+if (WIN32)
+    set(CPACK_GENERATOR "ZIP")
+elseif(APPLE)
+    set(CPACK_GENERATOR "DragNDrop")
+    set(CPACK_SYSTEM_NAME "mac")
+elseif(UNIX)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6, libgcc1, libstdc++6, liblua5, libqt5core5a, libqt5gui5, libqt5widgets5")
+    set(CPACK_GENERATOR "DEB")
+endif()
+include(CPack)
