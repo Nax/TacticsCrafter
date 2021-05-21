@@ -5,7 +5,7 @@
 
 ![badge-version](https://img.shields.io/github/v/release/FFT-Hackers/TacticsCrafter?include_prereleases)
 ![badge-license](https://img.shields.io/badge/license-MIT-brightgreen)
-![badge-build](https://img.shields.io/github/workflow/status/FFT-Hackers/TacticsCrafter/crafter)
+![badge-build](https://img.shields.io/github/workflow/status/FFT-Hackers/TacticsCrafter/TacticsCrafter)
 ![badge-stars](https://img.shields.io/github/stars/FFT-Hackers/TacticsCrafter)
 ![badge-downloads](https://img.shields.io/github/downloads/FFT-Hackers/TacticsCrafter/total)
 
