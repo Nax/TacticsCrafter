@@ -27,8 +27,12 @@ void MainWindow::importScript()
 
 void MainWindow::createActions()
 {
-    _actionImportScript = new QAction("Import Script...", this);
+    _actionImportScript = new QAction("Import Script...");
     connect(_actionImportScript, &QAction::triggered, this, &MainWindow::importScript);
+
+    _actionQuit = new QAction("Quit");
+    _actionQuit->setShortcut(QKeySequence("Ctrl+Q"));
+    connect(_actionQuit, &QAction::triggered, [this](){ close(); });
 }
 
 void MainWindow::createMenus()
@@ -37,6 +41,8 @@ void MainWindow::createMenus()
 
     auto menuFile = m->addMenu(tr("&File"));
     menuFile->addAction(_actionImportScript);
+    menuFile->addSeparator();
+    menuFile->addAction(_actionQuit);
 
     auto menuEdit = m->addMenu(tr("&Edit"));
     menuEdit->addAction(tr("Copy"))->setShortcut(QKeySequence("Ctrl+C"));

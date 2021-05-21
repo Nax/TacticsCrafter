@@ -32,6 +32,7 @@ ScriptManager::ScriptManager()
 
 ScriptManager::~ScriptManager()
 {
+    _scripts.clear();
     lua_close(_lua);
 }
 
