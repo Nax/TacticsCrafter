@@ -13,9 +13,13 @@
 
 TacticsCrafter is a modding API as well as an application implementing said API for the PSP game "Final Fantasy Tactics: The War of the Lions".
 
-## Features
+## Documentation
 
-TODO
+You can check the [wiki](https://github.com/FFT-Hackers/TacticsCrafter/wiki) for documentation.
+
+## Scripts
+
+[A repository of scripts](https://github.com/FFT-Hackers/TacticsCrafterScripts/) is available, including the popular Slowdown Fix.
 
 ## Build
 
