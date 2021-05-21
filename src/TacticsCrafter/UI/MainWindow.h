@@ -21,7 +21,8 @@ private:
 
     ScriptManager   _scriptManager;
 
-    QAction* _actionImportScript;
+    QAction*    _actionImportScript;
+    QAction*    _actionQuit;
 };
 
 #endif /* TC_MAIN_WINDOW_H */

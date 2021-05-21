@@ -38,7 +38,11 @@ void MainWindow::createMenus()
     auto menuFile = m->addMenu(tr("&File"));
     menuFile->addAction(_actionImportScript);
 
-    m->addMenu(tr("&Edit"));
+    auto menuEdit = m->addMenu(tr("&Edit"));
+    menuEdit->addAction(tr("Copy"))->setShortcut(QKeySequence("Ctrl+C"));
+    menuEdit->addAction(tr("Paste"))->setShortcut(QKeySequence("Ctrl+V"));
+    menuEdit->addAction(tr("Cut"))->setShortcut(QKeySequence("Ctrl+X"));
+
     m->addMenu(tr("&About"));
 }
 
