@@ -5,9 +5,23 @@ endif()
 
 set(CMAKE_AUTOMOC ON)
 
+# RPATH
+set(CMAKE_MACOSX_RPATH      TRUE)
+set(CMAKE_SKIP_BUILD_RPATH  FALSE)
+set(CMAKE_BUILD_RPATH       "${CMAKE_BINARY_DIR}/third_party/lib")
+
+if (UNIX)
+    if (APPLE)
+        set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks;@executable_path/../lib")
+    endif()
+endif()
+
 file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 if (WIN32)
     list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/res/app.rc")
+elseif(APPLE)
+    list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/res/icon.icns")
+    set_source_files_properties("${CMAKE_SOURCE_DIR}/res/icon.icns" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
 add_executable(TacticsCrafter WIN32 MACOSX_BUNDLE ${SOURCES})
@@ -27,6 +41,14 @@ if (WIN32)
         COMMENT "Deploying Qt"
         VERBATIM
     )
+elseif(APPLE)
+    add_custom_command(
+        TARGET TacticsCrafter POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:TacticsCrafter>/../lib"
+        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE_DIR:TacticsCrafter>/../lib"
+        COMMENT "Copying dylibs"
+        VERBATIM
+    )
 endif()
 
 add_custom_command(
@@ -44,4 +66,10 @@ if (WIN32)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ".")
     include(InstallRequiredSystemLibraries)
     install(CODE "execute_process(COMMAND \"${QT_DEPLOY}\" \"--release\" \"\${CMAKE_INSTALL_PREFIX}/TacticsCrafter.exe\" \"--no-compiler-runtime\" \"--no-opengl-sw\" \"--no-system-d3d-compiler\")")
+elseif(APPLE)
+    install(TARGETS TacticsCrafter BUNDLE DESTINATION .)
+    set(APP "\${CMAKE_INSTALL_PREFIX}/TacticsCrafter.app")
+    install(CODE "
+    execute_process(COMMAND \"${QT_DEPLOY}\" \"${APP}\" \"-verbose=1\")
+    ")
 endif()
