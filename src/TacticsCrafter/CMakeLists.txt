@@ -5,11 +5,6 @@ endif()
 
 set(CMAKE_AUTOMOC ON)
 
-# RPATH
-set(CMAKE_MACOSX_RPATH      TRUE)
-set(CMAKE_SKIP_BUILD_RPATH  FALSE)
-set(CMAKE_BUILD_RPATH       "${CMAKE_BINARY_DIR}/third_party/lib")
-
 if (UNIX)
     if (APPLE)
         set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks;@executable_path/../lib")
@@ -26,7 +21,7 @@ endif()
 
 add_executable(TacticsCrafter WIN32 MACOSX_BUNDLE ${SOURCES})
 target_include_directories(TacticsCrafter PRIVATE "${CMAKE_SOURCE_DIR}/src")
-target_link_libraries(TacticsCrafter Lua::Lua Qt5::Widgets)
+target_link_libraries(TacticsCrafter Qt5::Widgets libtactics)
 
 if (WIN32)
     add_custom_command(
