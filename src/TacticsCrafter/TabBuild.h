@@ -10,14 +10,14 @@ class TabBuild : public QWidget
     Q_OBJECT
 
 public:
-    TabBuild(LTC_Context* ctx, QWidget* parent = nullptr);
+    TabBuild(LTC_Context** ctx, QWidget* parent = nullptr);
     void report(int number);
 
 private slots:
     void run();
 
 private:
-    LTC_Context* _ctx;
+    LTC_Context** _ctx;
 
     QString         _fileIn;
     QString         _fileOut;

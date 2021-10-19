@@ -3,10 +3,21 @@
 #include <TacticsCrafter/TabBuild.h>
 #include <TacticsCrafter/TabScripts.h>
 
+namespace
+{
+
+const char* dataPath()
+{
+    static std::string p = (QCoreApplication::applicationDirPath() + "/data").toStdString();
+    return p.c_str();
+}
+
+}
+
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow{parent}
 {
-    _ctx = ltcCreateContext((QCoreApplication::applicationDirPath() + "/data").toStdString().c_str());
+    _ctx = ltcCreateContext(dataPath(), nullptr);
 
     setWindowTitle("TacticsCrafter");
 
@@ -18,6 +29,19 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow()
 {
     ltcDestroyContext(_ctx);
+}
+
+void MainWindow::open()
+{
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open Project"), "", tr("TacticsCrafter Project File (*.tcproj)"));
+
+    if (!filename.isEmpty())
+    {
+        ltcDestroyContext(_ctx);
+        _ctx = ltcCreateContext(dataPath(), filename.toStdString().c_str());
+        _tabScripts->refresh();
+        _projectFilePath = filename;
+    }
 }
 
 void MainWindow::importScript()
@@ -32,8 +56,42 @@ void MainWindow::importScript()
     }
 }
 
+void MainWindow::save()
+{
+    if (_projectFilePath.isEmpty())
+    {
+        saveAs();
+        return;
+    }
+
+    ltcSaveContext(_ctx, _projectFilePath.toStdString().c_str());
+}
+
+void MainWindow::saveAs()
+{
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save as..."), "", tr("TacticsCrafter Project File (*.tcproj)"));
+
+    if (!filename.isEmpty())
+    {
+        _projectFilePath = filename;
+        save();
+    }
+}
+
 void MainWindow::createActions()
 {
+    _actionOpen = new QAction("Open");
+    _actionOpen->setShortcut(QKeySequence("Ctrl+O"));
+    connect(_actionOpen, &QAction::triggered, this, &MainWindow::open);
+
+    _actionSave = new QAction("Save");
+    _actionSave->setShortcut(QKeySequence("Ctrl+S"));
+    connect(_actionSave, &QAction::triggered, this, &MainWindow::save);
+
+    _actionSaveAs = new QAction("Save As...");
+    _actionSaveAs->setShortcut(QKeySequence("Ctrl+Shift+S"));
+    connect(_actionSaveAs, &QAction::triggered, this, &MainWindow::saveAs);
+
     _actionImportScript = new QAction("Import Script...");
     connect(_actionImportScript, &QAction::triggered, this, &MainWindow::importScript);
 
@@ -52,6 +110,11 @@ void MainWindow::createMenus()
     auto m = menuBar();
 
     auto menuFile = m->addMenu(tr("&File"));
+    menuFile->addAction(_actionOpen);
+    menuFile->addSeparator();
+    menuFile->addAction(_actionSave);
+    menuFile->addAction(_actionSaveAs);
+    menuFile->addSeparator();
     menuFile->addAction(_actionImportScript);
     menuFile->addSeparator();
     menuFile->addAction(_actionQuit);
@@ -67,11 +130,11 @@ void MainWindow::createMenus()
 
 void MainWindow::createWidgets()
 {
-    _tabScripts = new TabScripts{_ctx};
+    _tabScripts = new TabScripts{&_ctx};
 
     auto tabWidget = new QTabWidget;
     tabWidget->addTab(_tabScripts, "Patches");
-    tabWidget->addTab(new TabBuild{_ctx}, "Build");
+    tabWidget->addTab(new TabBuild{&_ctx}, "Build");
 
     auto centralWidget = new QWidget;
     setCentralWidget(centralWidget);

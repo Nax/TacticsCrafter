@@ -11,7 +11,7 @@ class TabScripts : public QWidget
     Q_OBJECT
 
 public:
-    TabScripts(LTC_Context* ctx, QWidget* parent = nullptr);
+    TabScripts(LTC_Context** ctx, QWidget* parent = nullptr);
     void refresh();
 
 private slots:
@@ -21,7 +21,7 @@ private slots:
     void remove();
 
 private:
-    LTC_Context*    _ctx;
+    LTC_Context**   _ctx;
 
     QListWidget*    _list;
     ScriptView*     _view;

@@ -14,7 +14,7 @@ void buildCallback(void* arg, int progress)
 
 }
 
-TabBuild::TabBuild(LTC_Context* ctx, QWidget* parent)
+TabBuild::TabBuild(LTC_Context** ctx, QWidget* parent)
 : QWidget{parent}
 , _ctx{ctx}
 {
@@ -58,5 +58,5 @@ void TabBuild::report(int number)
 void TabBuild::run()
 {
     _progress->reset();
-    ltcBuildImage(_ctx, _fileOut.toStdString().c_str(), _fileIn.toStdString().c_str(), &buildCallback, this);
+    ltcBuildImage(*_ctx, _fileOut.toStdString().c_str(), _fileIn.toStdString().c_str(), &buildCallback, this);
 }

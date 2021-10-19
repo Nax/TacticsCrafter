@@ -3,7 +3,7 @@
 #include <TacticsCrafter/TabScripts.h>
 #include <TacticsCrafter/ScriptView.h>
 
-TabScripts::TabScripts(LTC_Context* ctx, QWidget* parent)
+TabScripts::TabScripts(LTC_Context** ctx, QWidget* parent)
 : QWidget{parent}
 , _ctx{ctx}
 , _showCore{}
@@ -50,20 +50,20 @@ TabScripts::TabScripts(LTC_Context* ctx, QWidget* parent)
 
 void TabScripts::refresh()
 {
-    int scriptCount = ltcGetScriptCount(_ctx);
+    int scriptCount = ltcGetScriptCount(*_ctx);
 
     _list->clear();
 
     for (int i = 0; i < scriptCount; ++i)
     {
-        LTC_Script s = ltcGetScriptHandle(_ctx, i);
-        int core = ltcGetScriptInt(_ctx, s, LTC_SCRIPT_CORE);
-        int error = ltcGetScriptInt(_ctx, s, LTC_SCRIPT_ERROR);
+        LTC_Script s = ltcGetScriptHandle(*_ctx, i);
+        int core = ltcGetScriptInt(*_ctx, s, LTC_SCRIPT_CORE);
+        int error = ltcGetScriptInt(*_ctx, s, LTC_SCRIPT_ERROR);
 
         if (!core || _showCore)
         {
             auto item = new QListWidgetItem;
-            item->setText(ltcGetScriptString(_ctx, s, LTC_SCRIPT_NAME));
+            item->setText(ltcGetScriptString(*_ctx, s, LTC_SCRIPT_NAME));
             item->setForeground(error ? Qt::red : core ? Qt::darkBlue : Qt::black);
             item->setData(Qt::UserRole + 0, (int)s);
             _list->addItem(item);
@@ -87,7 +87,7 @@ void TabScripts::moveUp()
     auto item = _list->selectedItems().first();
     LTC_Script s = (LTC_Script)item->data(Qt::UserRole + 0).toInt();
 
-    ltcMoveScript(_ctx, s, -1);
+    ltcMoveScript(*_ctx, s, -1);
     refresh();
 }
 
@@ -99,7 +99,7 @@ void TabScripts::moveDown()
     auto item = _list->selectedItems().first();
     LTC_Script s = (LTC_Script)item->data(Qt::UserRole + 0).toInt();
 
-    ltcMoveScript(_ctx, s, 1);
+    ltcMoveScript(*_ctx, s, 1);
     refresh();
 }
 
@@ -111,6 +111,6 @@ void TabScripts::remove()
     auto item = _list->selectedItems().first();
     LTC_Script s = (LTC_Script)item->data(Qt::UserRole + 0).toInt();
 
-    ltcRemoveScript(_ctx, s);
+    ltcRemoveScript(*_ctx, s);
     refresh();
 }

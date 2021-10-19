@@ -11,7 +11,7 @@ class ScriptView : public QWidget
     Q_OBJECT
 
 public:
-    ScriptView(LTC_Context* ctx, QWidget* parent = nullptr);
+    ScriptView(LTC_Context** ctx, QWidget* parent = nullptr);
 
     void setScript(LTC_Script script);
     void refresh();
@@ -20,7 +20,7 @@ signals:
     void changed();
 
 private:
-    LTC_Context* _ctx;
+    LTC_Context** _ctx;
     LTC_Script _script;
 
     QLabel* _labelName;

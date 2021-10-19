@@ -7,4 +7,4 @@ if (WIN32)
     target_compile_definitions(libtactics PRIVATE LIBTACTICS_EXPORT=1)
 endif()
 
-target_link_libraries(libtactics Lua::Lua)
+target_link_libraries(libtactics Lua::Lua JsonCpp::JsonCpp)

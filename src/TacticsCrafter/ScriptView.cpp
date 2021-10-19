@@ -1,7 +1,7 @@
 #include <QtWidgets>
 #include <TacticsCrafter/ScriptView.h>
 
-ScriptView::ScriptView(LTC_Context* ctx, QWidget* parent)
+ScriptView::ScriptView(LTC_Context** ctx, QWidget* parent)
 : QWidget{parent}
 , _ctx{ctx}
 {
@@ -56,15 +56,15 @@ void ScriptView::refresh()
     QWidget().setLayout(_optsContainer->layout());
     _optsContainer->setLayout(new QVBoxLayout);
 
-    if (_script && ltcGetScriptString(_ctx, _script, LTC_SCRIPT_NAME))
+    if (_script && ltcGetScriptString(*_ctx, _script, LTC_SCRIPT_NAME))
     {
-        _labelName->setText(ltcGetScriptString(_ctx, _script, LTC_SCRIPT_NAME));
-        _labelVersion->setText(ltcGetScriptString(_ctx, _script, LTC_SCRIPT_VERSION));
-        _labelAuthor->setText(ltcGetScriptString(_ctx, _script, LTC_SCRIPT_AUTHOR));
-        _labelDescription->setText(ltcGetScriptString(_ctx, _script, LTC_SCRIPT_DESCRIPTION));
+        _labelName->setText(ltcGetScriptString(*_ctx, _script, LTC_SCRIPT_NAME));
+        _labelVersion->setText(ltcGetScriptString(*_ctx, _script, LTC_SCRIPT_VERSION));
+        _labelAuthor->setText(ltcGetScriptString(*_ctx, _script, LTC_SCRIPT_AUTHOR));
+        _labelDescription->setText(ltcGetScriptString(*_ctx, _script, LTC_SCRIPT_DESCRIPTION));
 
         _console->clear();
-        const char* log = ltcGetScriptString(_ctx, _script, LTC_SCRIPT_LOG);
+        const char* log = ltcGetScriptString(*_ctx, _script, LTC_SCRIPT_LOG);
         if (log[0] == 0)
         {
             _consoleContainer->setVisible(false);
@@ -76,19 +76,19 @@ void ScriptView::refresh()
         }
 
         /* Options */
-        int optCount = ltcGetOptionCount(_ctx, _script);
+        int optCount = ltcGetOptionCount(*_ctx, _script);
         for (int index = 0; index < optCount; ++index)
         {
-            LTC_Option o = ltcGetOptionHandle(_ctx, _script, index);
-            switch (ltcGetOptionType(_ctx, o))
+            LTC_Option o = ltcGetOptionHandle(*_ctx, _script, index);
+            switch (ltcGetOptionType(*_ctx, o))
             {
             case LTC_OPTION_BOOLEAN:
-                auto checkbox = new QCheckBox(ltcGetOptionName(_ctx, o));
-                checkbox->setCheckState(ltcGetOptionValueBoolean(_ctx, o) ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
+                auto checkbox = new QCheckBox(ltcGetOptionName(*_ctx, o));
+                checkbox->setCheckState(ltcGetOptionValueBoolean(*_ctx, o) ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
                 connect(checkbox, &QCheckBox::stateChanged, [=](int state)
                 {
-                    ltcSetOptionValueBoolean(_ctx, o, !!state);
-                    ltcRunPipeline(_ctx);
+                    ltcSetOptionValueBoolean(*_ctx, o, !!state);
+                    ltcRunPipeline(*_ctx);
                     emit changed();
                     refresh();
                 });

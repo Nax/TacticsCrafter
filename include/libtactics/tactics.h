@@ -49,7 +49,7 @@ enum LTC_OptionType
 typedef void (*LTC_ProgressCallback)(void*, int);
 
 /* Context */
-LTC_API LTC_Context*    ltcCreateContext(const char* dataPath);
+LTC_API LTC_Context*    ltcCreateContext(const char* dataPath, const char* projectFile);
 LTC_API void            ltcDestroyContext(LTC_Context* ctx);
 LTC_API LTC_Script      ltcLoadScript(LTC_Context* ctx, const char* path);
 LTC_API void            ltcRemoveScript(LTC_Context* ctx, LTC_Script script);
@@ -57,6 +57,7 @@ LTC_API void            ltcMoveScript(LTC_Context* ctx, LTC_Script script, int d
 LTC_API int             ltcGetScriptCount(LTC_Context* ctx);
 LTC_API LTC_Script      ltcGetScriptHandle(LTC_Context* ctx, int index);
 LTC_API void            ltcRunPipeline(LTC_Context* ctx);
+LTC_API void            ltcSaveContext(LTC_Context* ctx, const char* path);
 
 /* Script */
 LTC_API const char* ltcGetScriptString(LTC_Context* ctx, LTC_Script script, LTC_ScriptInfo info);

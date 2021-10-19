@@ -26,7 +26,7 @@ target_link_libraries(TacticsCrafter Qt5::Widgets libtactics)
 if (WIN32)
     add_custom_command(
         TARGET TacticsCrafter POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE_DIR:TacticsCrafter>"
+        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" "$<TARGET_FILE_DIR:TacticsCrafter>"
         COMMENT "Copying DLLs"
         VERBATIM
     )
@@ -40,7 +40,7 @@ elseif(APPLE)
     add_custom_command(
         TARGET TacticsCrafter POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:TacticsCrafter>/../lib"
-        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE_DIR:TacticsCrafter>/../lib"
+        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" "$<TARGET_FILE_DIR:TacticsCrafter>/../lib"
         COMMENT "Copying dylibs"
         VERBATIM
     )
@@ -56,7 +56,7 @@ add_custom_command(
 # Install
 if (WIN32)
     install(TARGETS TacticsCrafter RUNTIME DESTINATION .)
-    install(FILES "$<TARGET_FILE:Lua::Lua>" DESTINATION .)
+    install(FILES "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" DESTINATION .)
     install(DIRECTORY "${CMAKE_SOURCE_DIR}/data" DESTINATION .)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ".")
     include(InstallRequiredSystemLibraries)

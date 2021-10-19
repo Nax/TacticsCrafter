@@ -62,6 +62,13 @@ public:
         _free.push_back(handle);
     }
 
+    void clear()
+    {
+        _data.clear();
+        _free.clear();
+        _valid.clear();
+    }
+
 private:
     std::vector<T>      _data;
     std::vector<Handle> _free;

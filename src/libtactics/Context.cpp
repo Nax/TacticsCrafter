@@ -1,4 +1,7 @@
 #include <filesystem>
+#include <iostream>
+#include <fstream>
+#include <json/json.h>
 #include <libtactics/Context.h>
 #include <libtactics/API/API.h>
 
@@ -74,6 +77,9 @@ static LTC_Script ltcImplPipelineLoadScript(LTC_Context* ctx, const char* path, 
     script = ctx->scripts.alloc();
     s = ctx->scripts.get(script);
 
+    /* Register the path */
+    s->path = std::filesystem::absolute(path).string();
+
     /* Create the script function */
     if (luaL_loadfile(L, path))
     {
@@ -142,7 +148,7 @@ LTC_API void ltcMoveScript(LTC_Context* ctx, LTC_Script script, int delta)
     ctx->pipeline[index2] = script;
 }
 
-LTC_API LTC_Context* ltcCreateContext(const char* dataPath)
+LTC_API LTC_Context* ltcCreateContext(const char* dataPath, const char* projectFile)
 {
     LTC_Context* ctx;
     lua_State* L;
@@ -185,6 +191,24 @@ LTC_API LTC_Context* ltcCreateContext(const char* dataPath)
         ltcImplPipelineLoadScript(ctx, e.c_str(), true);
     }
 
+    /* Load the project file */
+    if (projectFile)
+    {
+        Json::Value root;
+
+        {
+            std::ifstream f{projectFile};
+            f >> root;
+        }
+
+        Json::Value scripts = root["scripts"];
+        for (Json::Value v : scripts)
+        {
+            Json::Value p = v["path"];
+            ltcImplPipelineLoadScript(ctx, p.asCString(), false);
+        }
+    }
+
     /* Run the pipeline once to process the core scripts */
     ltcImplPipelineRun(ctx);
 
@@ -217,4 +241,27 @@ LTC_API LTC_Script ltcGetScriptHandle(LTC_Context* ctx, int index)
 LTC_API void ltcRunPipeline(LTC_Context* ctx)
 {
     ltcImplPipelineRun(ctx);
+}
+
+LTC_API void ltcSaveContext(LTC_Context* ctx, const char* path)
+{
+    Json::Value root(Json::objectValue);
+    Json::Value scripts(Json::arrayValue);
+
+    for (LTC_Script script : ctx->pipeline)
+    {
+        Script* s = ctx->scripts.get(script);
+        if (!s || s->core)
+            continue;
+        Json::Value scriptObj(Json::objectValue);
+        scriptObj["path"] = s->path.c_str();
+        scripts.append(scriptObj);
+    }
+
+    root["scripts"] = scripts;
+
+    /* Write the file */
+    std::ofstream f(path);
+    f << root << std::endl;
+    f.close();
 }

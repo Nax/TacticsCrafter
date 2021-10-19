@@ -14,7 +14,10 @@ public:
     virtual ~MainWindow();
 
 private slots:
+    void open();
     void importScript();
+    void save();
+    void saveAs();
 
 private:
     void createActions();
@@ -22,9 +25,13 @@ private:
     void createWidgets();
 
     LTC_Context* _ctx;
+    QString _projectFilePath;
 
     TabScripts* _tabScripts;
 
+    QAction*    _actionOpen;
+    QAction*    _actionSave;
+    QAction*    _actionSaveAs;
     QAction*    _actionImportScript;
     QAction*    _actionQuit;
     QAction*    _actionAbout;

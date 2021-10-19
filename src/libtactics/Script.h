@@ -9,6 +9,8 @@ struct Script
 {
     std::vector<LTC_Option> options;
 
+    std::string path;
+
     std::string name;
     std::string author;
     std::string version;
