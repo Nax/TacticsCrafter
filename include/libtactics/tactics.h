@@ -29,7 +29,7 @@ typedef struct LTC_Context LTC_Context;
 typedef uint32_t LTC_Script;
 typedef uint32_t LTC_Option;
 
-enum LTC_ScriptInfo
+typedef enum
 {
     LTC_SCRIPT_NAME = 1,
     LTC_SCRIPT_AUTHOR = 2,
@@ -38,18 +38,18 @@ enum LTC_ScriptInfo
     LTC_SCRIPT_LOG = 5,
     LTC_SCRIPT_ERROR = 6,
     LTC_SCRIPT_CORE = 7,
-};
+} LTC_ScriptInfo;
 
-enum LTC_OptionType
+typedef enum
 {
     LTC_OPTION_UNDEFINED = 0,
     LTC_OPTION_BOOLEAN = 1
-};
+} LTC_OptionType;
 
 typedef void (*LTC_ProgressCallback)(void*, int);
 
 /* Context */
-LTC_API LTC_Context*    ltcCreateContext(const char* dataPath, const char* projectFile);
+LTC_API LTC_Context*    ltcCreateContext(const char* projectFile);
 LTC_API void            ltcDestroyContext(LTC_Context* ctx);
 LTC_API LTC_Script      ltcLoadScript(LTC_Context* ctx, const char* path);
 LTC_API void            ltcRemoveScript(LTC_Context* ctx, LTC_Script script);

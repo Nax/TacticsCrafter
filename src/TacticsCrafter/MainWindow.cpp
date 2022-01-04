@@ -3,21 +3,10 @@
 #include <TacticsCrafter/TabBuild.h>
 #include <TacticsCrafter/TabScripts.h>
 
-namespace
-{
-
-const char* dataPath()
-{
-    static std::string p = (QCoreApplication::applicationDirPath() + "/data").toStdString();
-    return p.c_str();
-}
-
-}
-
 MainWindow::MainWindow(QWidget* parent)
 : QMainWindow{parent}
 {
-    _ctx = ltcCreateContext(dataPath(), nullptr);
+    _ctx = ltcCreateContext(nullptr);
 
     setWindowTitle("TacticsCrafter");
 
@@ -38,7 +27,7 @@ void MainWindow::open()
     if (!filename.isEmpty())
     {
         ltcDestroyContext(_ctx);
-        _ctx = ltcCreateContext(dataPath(), filename.toStdString().c_str());
+        _ctx = ltcCreateContext(filename.toStdString().c_str());
         _tabScripts->refresh();
         _projectFilePath = filename;
     }

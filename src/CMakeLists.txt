@@ -15,3 +15,4 @@ endif()
 
 add_subdirectory(libtactics)
 add_subdirectory(TacticsCrafter)
+add_subdirectory(tcraft)

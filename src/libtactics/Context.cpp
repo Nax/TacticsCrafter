@@ -5,6 +5,8 @@
 #include <libtactics/Context.h>
 #include <libtactics/API/API.h>
 
+std::string ltcImplGetDataPath(void);
+
 void ltcImplPipelineRun(LTC_Context* ctx)
 {
     lua_State* L = ctx->L;
@@ -148,8 +150,10 @@ LTC_API void ltcMoveScript(LTC_Context* ctx, LTC_Script script, int delta)
     ctx->pipeline[index2] = script;
 }
 
-LTC_API LTC_Context* ltcCreateContext(const char* dataPath, const char* projectFile)
+LTC_API LTC_Context* ltcCreateContext(const char* projectFile)
 {
+    auto dataPath = ltcImplGetDataPath();
+
     LTC_Context* ctx;
     lua_State* L;
     luaL_Buffer b;
@@ -163,7 +167,7 @@ LTC_API LTC_Context* ltcCreateContext(const char* dataPath, const char* projectF
     /* Set the search path */
     lua_getglobal(L, "package");
     luaL_buffinit(L, &b);
-    luaL_addstring(&b, dataPath);
+    luaL_addstring(&b, dataPath.c_str());
     luaL_addstring(&b, "/?.lua");
     luaL_pushresult(&b);
     lua_setfield(L, -2, "path");
@@ -177,7 +181,7 @@ LTC_API LTC_Context* ltcCreateContext(const char* dataPath, const char* projectF
 
     /* Load core scripts */
     std::vector<std::string> coreScripts;
-    std::string corePath = std::string(dataPath) + "/core/";
+    std::string corePath = dataPath + "/core/";
     for (const auto& e : std::filesystem::directory_iterator(corePath))
     {
         if (e.is_regular_file() && e.path().extension() == ".lua")
