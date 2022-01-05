@@ -20,18 +20,18 @@ jobs:
         include:
           - name: win64
             os: windows-2019
-            qt_arch: win64_msvc2017_64
+            qt_arch: win64_msvc2019_64
             cmake_opts: -A x64
           - name: win32
             os: windows-2019
-            qt_arch: win32_msvc2015
+            qt_arch: win32_msvc2019
             cmake_opts: -A Win32
           - name: macos
             os: macos-latest
             cmake_opts: -DCMAKE_BUILD_TYPE=Release
     runs-on: ${{ matrix.os }}
     env:
-      QT_VERSION: 5.9.9
+      QT_VERSION: 5.15.2
     steps:
     - name: Cache Qt
       id: cache-qt
