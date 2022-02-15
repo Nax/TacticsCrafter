@@ -1,2 +1,5 @@
 add_executable(tcraft main.c)
 target_link_libraries(tcraft libtactics)
+if (APPLE)
+    set_target_properties(tcraft PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:TacticsCrafter>")
+endif()

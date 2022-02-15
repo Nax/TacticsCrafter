@@ -33,6 +33,14 @@ ExternalProject_Add(
         "-DBUILD_STATIC_LIBS=OFF"
         "-DBUILD_OBJECT_LIBS=OFF"
 )
+if (APPLE)
+    ExternalProject_Add_Step(
+        ep_jsoncpp
+        install_name
+        DEPENDEES install
+        COMMAND install_name_tool -id "@rpath/libjsoncpp.dylib" "${JSONCPP_IMPORTED_LOCATION}"
+    )
+endif()
 
 add_library(JsonCpp::JsonCpp SHARED IMPORTED GLOBAL)
 set_target_properties(

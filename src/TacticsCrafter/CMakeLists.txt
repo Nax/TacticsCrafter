@@ -5,10 +5,8 @@ endif()
 
 set(CMAKE_AUTOMOC ON)
 
-if (UNIX)
-    if (APPLE)
-        set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks;@executable_path/../lib")
-    endif()
+if (APPLE)
+    set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
 endif()
 
 file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
@@ -36,14 +34,6 @@ if (WIN32)
         COMMENT "Deploying Qt"
         VERBATIM
     )
-elseif(APPLE)
-    add_custom_command(
-        TARGET TacticsCrafter POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:TacticsCrafter>/lib"
-        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" "$<TARGET_BUNDLE_CONTENT_DIR:TacticsCrafter>/lib"
-        COMMENT "Copying dylibs"
-        VERBATIM
-    )
 endif()
 
 if (APPLE)
@@ -58,19 +48,3 @@ add_custom_command(
     COMMENT "Copying data"
     VERBATIM
 )
-
-# Install
-if (WIN32)
-    install(TARGETS TacticsCrafter RUNTIME DESTINATION .)
-    install(FILES "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" DESTINATION .)
-    install(DIRECTORY "${CMAKE_SOURCE_DIR}/data" DESTINATION .)
-    set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ".")
-    include(InstallRequiredSystemLibraries)
-    install(CODE "execute_process(COMMAND \"${QT_DEPLOY}\" \"--release\" \"\${CMAKE_INSTALL_PREFIX}/TacticsCrafter.exe\" \"--no-compiler-runtime\" \"--no-opengl-sw\" \"--no-system-d3d-compiler\")")
-elseif(APPLE)
-    install(TARGETS TacticsCrafter BUNDLE DESTINATION .)
-    set(APP "\${CMAKE_INSTALL_PREFIX}/TacticsCrafter.app")
-    install(CODE "
-    execute_process(COMMAND \"${QT_DEPLOY}\" \"${APP}\" \"-verbose=1\")
-    ")
-endif()
