@@ -19,7 +19,7 @@ add_subdirectory(tcraft)
 
 # Install
 if (WIN32)
-    install(TARGETS TacticsCrafter RUNTIME DESTINATION .)
+    install(TARGETS TacticsCrafter tcraft libtactics RUNTIME DESTINATION .)
     install(FILES "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" DESTINATION .)
     install(DIRECTORY "${CMAKE_SOURCE_DIR}/data" DESTINATION .)
     set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ".")
@@ -28,10 +28,6 @@ if (WIN32)
 elseif(APPLE)
     install(TARGETS TacticsCrafter BUNDLE DESTINATION .)
     set(APP "\${CMAKE_INSTALL_PREFIX}/TacticsCrafter.app")
-    #install(CODE "
-    #execute_process(COMMAND \"${QT_DEPLOY}\" \"${APP}\" \"-verbose=1\")
-    #execute_process(COMMAND \"${CMAKE_COMMAND}\" -E copy_if_different \"$<TARGET_FILE:libtactics>\" \"${APP}/Contents/Frameworks/\")
-    #")
     install(CODE "
     execute_process(COMMAND \"${QT_DEPLOY}\" \"${APP}\" \"-verbose=1\")
     execute_process(COMMAND \"${CMAKE_COMMAND}\" -E copy_if_different \"$<TARGET_FILE:libtactics>\" \"$<TARGET_FILE:Lua::Lua>\" \"$<TARGET_FILE:JsonCpp::JsonCpp>\" \"${APP}/Contents/Frameworks/\")
