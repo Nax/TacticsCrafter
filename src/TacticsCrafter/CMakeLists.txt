@@ -39,16 +39,22 @@ if (WIN32)
 elseif(APPLE)
     add_custom_command(
         TARGET TacticsCrafter POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:TacticsCrafter>/../lib"
-        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" "$<TARGET_FILE_DIR:TacticsCrafter>/../lib"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_CONTENT_DIR:TacticsCrafter>/lib"
+        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:Lua::Lua>" "$<TARGET_FILE:JsonCpp::JsonCpp>" "$<TARGET_BUNDLE_CONTENT_DIR:TacticsCrafter>/lib"
         COMMENT "Copying dylibs"
         VERBATIM
     )
 endif()
 
+if (APPLE)
+    set(DATA_DEST "$<TARGET_BUNDLE_CONTENT_DIR:TacticsCrafter>/Resources")
+else()
+    set(DATA_DEST "$<TARGET_FILE_DIR:TacticsCrafter>")
+endif()
+
 add_custom_command(
     TARGET TacticsCrafter POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/data" "$<TARGET_FILE_DIR:TacticsCrafter>/data"
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/data" "${DATA_DEST}/data"
     COMMENT "Copying data"
     VERBATIM
 )

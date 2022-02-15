@@ -5,9 +5,7 @@
 
 namespace
 {
-
 int sDummy;
-
 }
 
 std::string ltcImplGetDataPath(void)

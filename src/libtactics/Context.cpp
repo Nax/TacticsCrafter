@@ -1,11 +1,13 @@
-#include <filesystem>
+#include <dirent.h>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <json/json.h>
 #include <libtactics/Context.h>
 #include <libtactics/API/API.h>
 
 std::string ltcImplGetDataPath(void);
+std::string ltcImplGetAbsolutePath(const std::string& path);
 
 void ltcImplPipelineRun(LTC_Context* ctx)
 {
@@ -80,7 +82,7 @@ static LTC_Script ltcImplPipelineLoadScript(LTC_Context* ctx, const char* path, 
     s = ctx->scripts.get(script);
 
     /* Register the path */
-    s->path = std::filesystem::absolute(path).string();
+    s->path = ltcImplGetAbsolutePath(path);
 
     /* Create the script function */
     if (luaL_loadfile(L, path))
@@ -182,13 +184,18 @@ LTC_API LTC_Context* ltcCreateContext(const char* projectFile)
     /* Load core scripts */
     std::vector<std::string> coreScripts;
     std::string corePath = dataPath + "/core/";
-    for (const auto& e : std::filesystem::directory_iterator(corePath))
+    DIR* coreDir = opendir(corePath.c_str());
+    dirent* ent;
+    while ((ent = readdir(coreDir)))
     {
-        if (e.is_regular_file() && e.path().extension() == ".lua")
+        const char* ext = strrchr(ent->d_name, '.');
+        if (ext && strcmp(ext, ".lua") == 0)
         {
-            coreScripts.push_back(e.path().string());
+            coreScripts.push_back(corePath + "/" + ent->d_name);
         }
     }
+    closedir(coreDir);
+
     std::sort(coreScripts.begin(), coreScripts.end());
     for (auto& e : coreScripts)
     {
