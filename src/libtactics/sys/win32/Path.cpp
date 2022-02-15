@@ -31,3 +31,11 @@ std::string ltcImplGetDataPath(void)
     }
     return std::string(path) + "\\data";
 }
+
+std::string ltcImplGetAbsolutePath(const std::string& path)
+{
+    char* s = _fullpath(nullptr, path.c_str(), 0);
+    std::string abs{s};
+    std::free(s);
+    return s;
+}
