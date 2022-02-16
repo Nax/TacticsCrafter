@@ -265,6 +265,17 @@ LTC_API void ltcSaveContext(LTC_Context* ctx, const char* path)
             continue;
         Json::Value scriptObj(Json::objectValue);
         scriptObj["path"] = s->path.c_str();
+
+        if (!s->options.empty())
+        {
+            Json::Value optionsObj(Json::objectValue);
+            for (auto optionId : s->options)
+            {
+                const Option* o = ctx->options.get(optionId);
+                optionsObj[o->key] = o->b;
+            }
+            scriptObj["options"] = optionsObj;
+        }
         scripts.append(scriptObj);
     }
 
