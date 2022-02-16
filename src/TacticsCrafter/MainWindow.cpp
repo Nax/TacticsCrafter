@@ -69,7 +69,7 @@ void MainWindow::saveAs()
 
 void MainWindow::createActions()
 {
-    _actionOpen = new QAction("Open");
+    _actionOpen = new QAction("Open Project...");
     _actionOpen->setShortcut(QKeySequence("Ctrl+O"));
     connect(_actionOpen, &QAction::triggered, this, &MainWindow::open);
 
@@ -82,6 +82,7 @@ void MainWindow::createActions()
     connect(_actionSaveAs, &QAction::triggered, this, &MainWindow::saveAs);
 
     _actionImportScript = new QAction("Import Script...");
+    _actionImportScript->setShortcut(QKeySequence("Ctrl+I"));
     connect(_actionImportScript, &QAction::triggered, this, &MainWindow::importScript);
 
     _actionQuit = new QAction("Quit");
