@@ -40,10 +40,7 @@ void ltcImplPipelineRun(LTC_Context* ctx)
         else
         {
             /* Reset the script metadata */
-            s->name = "Unknown";
-            s->author = "Unknown";
-            s->version = "0.0.0";
-            s->description = "N/A";
+            s->resetMetadata();
 
             /* Load the script function */
             lua_rawgeti(L, LUA_REGISTRYINDEX, s->func);
@@ -90,6 +87,7 @@ static LTC_Script ltcImplPipelineLoadScript(LTC_Context* ctx, const char* path, 
     {
         s->func = LUA_NOREF;
         s->log = lua_tostring(L, -1);
+        lua_pop(L, -1);
         s->error = true;
     }
     else

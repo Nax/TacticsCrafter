@@ -7,6 +7,9 @@
 
 struct Script
 {
+    Script();
+    void resetMetadata();
+
     std::vector<LTC_Option> options;
 
     std::string path;

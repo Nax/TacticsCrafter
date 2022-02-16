@@ -1,5 +1,18 @@
 #include <libtactics/Context.h>
 
+Script::Script()
+{
+    resetMetadata();
+}
+
+void Script::resetMetadata()
+{
+    name = "Unknown";
+    author = "Unknown";
+    version = "0.0.0";
+    description = "N/A";
+}
+
 LTC_API const char* ltcGetScriptString(LTC_Context* ctx, LTC_Script script, LTC_ScriptInfo info)
 {
     Script* s = ctx->scripts.get(script);
