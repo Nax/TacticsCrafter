@@ -49,6 +49,7 @@ private:
     bool parseRegisterOffset(std::uint8_t* dstReg, std::uint32_t* dstOff);
     bool parseChar(char c);
     bool parseEOF();
+
     bool fixRefs();
 
     LTC_Context& _ctx;

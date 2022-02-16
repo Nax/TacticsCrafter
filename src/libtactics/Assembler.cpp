@@ -23,6 +23,9 @@
 #define AR_RS_OFF           0x08
 #define AR_RT_RAW           0x09
 
+/* Used by EXT & INS, special cased */
+#define AR_MSB_EXT_INS      0x0e
+
 /* Only used internally for li/la refs */
 #define AR_IMMHI            0x0f
 
@@ -40,7 +43,7 @@ struct OpData
     const char*     mnemo;
     std::uint8_t    op;
     std::uint8_t    encoding;
-    std::uint8_t    args[3];
+    std::uint8_t    args[4];
 };
 
 const char* const kRegisters[32] = {
@@ -156,6 +159,8 @@ const OpData kOpData[] = {
     { "clo",     041, EN_SPECIAL2, { AR_RD, AR_RS } },
 
     /* SPECIAL3 */
+    { "ext",     000, EN_SPECIAL3, { AR_RT, AR_RS, AR_SA, AR_MSB_EXT_INS } },
+    { "ins",     004, EN_SPECIAL3, { AR_RT, AR_RS, AR_SA, AR_MSB_EXT_INS } },
 
     /* Pseudo-instructions */
     { "nop",      0, EN_PSEUDO, { AR_NONE } },
@@ -189,7 +194,12 @@ const OpData* lookupInstr(const char* mnemo)
 
 bool isIdentifierLeadingChar(char c)
 {
-    return std::isalpha(c) || c == '_';
+    /*
+     * Apparently some people use '@' in their ASM
+     * We tolerate that but there is no promise
+     * that it won't break someday.
+     */
+    return std::isalpha(c) || c == '_' || c == '@';
 }
 
 bool isIdentifierChar(char c)
@@ -287,6 +297,7 @@ bool Assembler::parseInstruction()
     std::uint8_t    rt{};
     std::uint8_t    rd{};
     std::uint8_t    sa{};
+    std::uint8_t    msb;
     std::uint8_t*   reg;
 
     /* Do we have an instruction? */
@@ -302,7 +313,7 @@ bool Assembler::parseInstruction()
         return false;
     }
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < 4; ++i)
     {
         switch (op->args[i] & 0xf)
         {
@@ -390,16 +401,25 @@ bool Assembler::parseInstruction()
         case AR_SA:
             if (!parseImmediateNoSymbolic(&tmp32))
             {
-                _error = "Expected shift amount";
+                _error = "Expected shift amount / position";
                 return false;
             }
             skipWS();
             sa = tmp32 & 0x3f;
             break;
+        case AR_MSB_EXT_INS:
+            if (!parseImmediateNoSymbolic(&tmp32))
+            {
+                _error = "Expected size";
+                return false;
+            }
+            skipWS();
+            msb = tmp32 & 0xff;
+            break;
         }
 
         /* Consume commas */
-        if (i < 2 && op->args[i + 1] != AR_NONE)
+        if (i < 3 && op->args[i + 1] != AR_NONE)
         {
             /* TODO: Handle this better (e.g. optional args) */
             parseChar(',');
@@ -424,6 +444,22 @@ bool Assembler::parseInstruction()
         break;
     case EN_SPECIAL2:
         instr = (034 << 26) | (rs << 21) | (rt << 16) | (rd << 11) | (op->op & 0x3f);
+        break;
+    case EN_SPECIAL3:
+        switch (op->op)
+        {
+        case 000:
+            /* ext */
+            msb = (msb - 1) & 0x1f;
+            break;
+        case 004:
+            /* ins */
+            msb = (sa + msb - 1) & 0x1f;
+            break;
+        default:
+            break;
+        }
+        instr = (037 << 26) | (rs << 21) | (rt << 16) | (msb << 11) | (sa << 6) | (op->op & 0x3f);
         break;
     case EN_PSEUDO:
         switch (op->op)
