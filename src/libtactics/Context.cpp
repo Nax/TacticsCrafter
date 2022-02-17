@@ -208,16 +208,46 @@ LTC_API LTC_Context* ltcCreateContext(const char* projectFile)
 
         {
             std::ifstream f{projectFile};
-            f >> root;
+            if (!f.good())
+                goto loaded;
+            try {
+                f >> root;
+            } catch (const std::exception&) {
+                goto loaded;
+            }
         }
 
         Json::Value scripts = root["scripts"];
         for (Json::Value v : scripts)
         {
             Json::Value p = v["path"];
-            ltcImplPipelineLoadScript(ctx, p.asCString(), false);
+            LTC_Script scriptID = ltcImplPipelineLoadScript(ctx, p.asCString(), false);
+            Script* s = ctx->scripts.get(scriptID);
+            Json::Value options = v["options"];
+            if (options.isObject())
+            {
+                for (const auto& key : options.getMemberNames())
+                {
+                    const auto& value = options[key];
+                    LTC_Option optionID = ctx->options.alloc();
+                    Option* o = ctx->options.get(optionID);
+                    o->text = "";
+                    o->key = key;
+                    if (value.isBool())
+                    {
+                        o->type = LTC_OPTION_BOOLEAN;
+                        o->b = value.asBool();
+                    }
+                    else
+                    {
+                        o->type = LTC_OPTION_UNDEFINED;
+                    }
+                    s->options.push_back(optionID);
+                }
+            }
         }
     }
+loaded:
 
     /* Run the pipeline once to process the core scripts */
     ltcImplPipelineRun(ctx);
