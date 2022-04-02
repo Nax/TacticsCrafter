@@ -1,4 +1,5 @@
 #include <string>
+#include <libtactics/Path.h>
 
 std::string ltcImplGetAbsolutePath(const std::string& path)
 {

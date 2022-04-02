@@ -5,10 +5,27 @@
 #include <cstring>
 #include <json/json.h>
 #include <libtactics/Context.h>
-#include <libtactics/API/API.h>
+#include <libtactics/API.h>
+#include <libtactics/Path.h>
 
-std::string ltcImplGetDataPath(void);
-std::string ltcImplGetAbsolutePath(const std::string& path);
+#if defined(WIN32) || defined(_WIN32)
+# include <direct.h>
+# define chdir _chdir
+#else
+# include <unistd.h>
+#endif
+
+namespace
+{
+
+std::string makeRelativePath(const std::string& root, const std::string& path)
+{
+    if (path.size() > root.size() && path.find(root) == 0)
+        return path.substr(root.size(), path.size() - root.size());
+    return path;
+}
+
+}
 
 void ltcImplPipelineRun(LTC_Context* ctx)
 {
@@ -74,6 +91,10 @@ static LTC_Script ltcImplPipelineLoadScript(LTC_Context* ctx, const char* path, 
     lua_State* L = ctx->L;
     LTC_Script script;
     Script* s;
+
+    /* Allow local scripts */
+    if (!core && !ctx->dir.empty())
+        chdir(ctx->dir.c_str());
 
     /* Alloc the script */
     script = ctx->scripts.alloc();
@@ -204,6 +225,8 @@ LTC_API LTC_Context* ltcCreateContext(const char* projectFile)
     /* Load the project file */
     if (projectFile)
     {
+        ctx->dir = ltcImplGetParentPath(ltcImplGetAbsolutePath(projectFile));
+
         Json::Value root;
 
         {
@@ -288,13 +311,16 @@ LTC_API void ltcSaveContext(LTC_Context* ctx, const char* path)
     Json::Value root(Json::objectValue);
     Json::Value scripts(Json::arrayValue);
 
+    ctx->dir = ltcImplGetParentPath(ltcImplGetAbsolutePath(path));
+    std::string localPrefix = ctx->dir + '/';
+
     for (LTC_Script script : ctx->pipeline)
     {
         Script* s = ctx->scripts.get(script);
         if (!s || s->core)
             continue;
         Json::Value scriptObj(Json::objectValue);
-        scriptObj["path"] = s->path.c_str();
+        scriptObj["path"] = makeRelativePath(localPrefix, s->path).c_str();
 
         if (!s->options.empty())
         {

@@ -24,6 +24,7 @@ struct LTC_Context
 
     ResourcePool<Script, LTC_Script> scripts;
     ResourcePool<Option, LTC_Option> options;
+    std::string dir;
 };
 
 void ltcImplPipelineRun(LTC_Context* ctx);

@@ -2,6 +2,7 @@
 #define VC_EXTRALEAN 1
 #include <windows.h>
 #include <string>
+#include <libtactics/Path.h>
 
 namespace
 {
@@ -29,7 +30,7 @@ std::string ltcImplGetDataPath(void)
             break;
         }
     }
-    return std::string(path) + "\\data";
+    return ltcImplGetAbsolutePath(path) + "/data";
 }
 
 std::string ltcImplGetAbsolutePath(const std::string& path)
@@ -37,5 +38,10 @@ std::string ltcImplGetAbsolutePath(const std::string& path)
     char* s = _fullpath(nullptr, path.c_str(), 0);
     std::string abs{s};
     std::free(s);
-    return s;
+    for (std::size_t i = 0; i < abs.size(); ++i)
+    {
+        if (abs[i] == '\\')
+            abs[i] = '/';
+    }
+    return abs;
 }

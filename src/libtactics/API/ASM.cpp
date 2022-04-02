@@ -1,5 +1,5 @@
 #include <cstdint>
-#include <libtactics/API/API.h>
+#include <libtactics/API.h>
 #include <libtactics/Assembler.h>
 
 namespace

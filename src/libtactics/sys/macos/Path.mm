@@ -1,5 +1,6 @@
 #import <string>
 #import <Foundation/Foundation.h>
+#import <libtactics/Path.h>
 
 std::string ltcImplGetDataPath(void)
 {
